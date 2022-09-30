@@ -1,0 +1,8 @@
+{:known-macros [dumdom.core/defcomponent
+                clojure.core.match/match
+                chord.http-kit/with-channel
+                compojure.core/GET
+                compojure.core/POST]
+ :valid-ident {:encoding-range :unicode}
+ :rules {:if-without-else true
+         :unused-fn-parameters true}}

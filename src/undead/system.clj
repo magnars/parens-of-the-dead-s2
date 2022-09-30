@@ -1,11 +1,11 @@
 (ns undead.system
   (:require [chord.http-kit :as chord]
-            [clojure.core.async :refer [put!]]
             [clojure.java.io :as io]
             [compojure.core :refer [GET routes]]
             [compojure.route :as route]
             [integrant.core :as ig]
-            [org.httpkit.server :as server]))
+            [org.httpkit.server :as server]
+            [undead.game-loop :as game-loop]))
 
 (def system
   {:app/config {}
@@ -20,7 +20,7 @@
 
 (defn ws-handler [req]
   (chord/with-channel req ws-channel
-    (put! ws-channel [[:assoc-in [:zombies :zombie-1] {:kind :mailman}]])))
+    (game-loop/start! ws-channel)))
 
 (defmethod ig/init-key :app/handler [_ _]
   (routes

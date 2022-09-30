@@ -688,7 +688,7 @@ body {background: #ddf; margin: 0;}
     animation-name: fade-out;
 }
 
-.refill.heart::before {
+.healed.heart::before {
     animation-iteration-count: 1;
     animation-duration: 700ms, 500ms;
     animation-fill-mode: both;

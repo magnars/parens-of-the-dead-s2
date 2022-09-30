@@ -13,5 +13,7 @@
         :extra-deps {integrant/repl {:mvn/version "0.3.2"}
                      cider/piggieback {:mvn/version "0.5.3"}
                      com.bhauman/figwheel-main {:mvn/version "0.2.14"}
-                     cjohansen/gadget-inspector {:mvn/version "0.2020.09.10"}}
+                     cjohansen/gadget-inspector {:mvn/version "0.2020.09.10"}
+                     lambdaisland/kaocha {:mvn/version "1.63.998"}
+                     kaocha-noyoda/kaocha-noyoda {:mvn/version "2019-06-03"}}
         :jvm-opts ["-XX:-OmitStackTraceInFastThrow"]}}}
