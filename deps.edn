@@ -3,8 +3,12 @@
         org.clojure/clojurescript {:mvn/version "1.10.520"}
         http-kit/http-kit {:mvn/version "2.5.3"}
         compojure/compojure {:mvn/version "1.6.2"}
-        integrant/integrant {:mvn/version "0.8.0"}}
+        integrant/integrant {:mvn/version "0.8.0"}
+        cjohansen/dumdom {:mvn/version "2022.04.12"}}
  :aliases
  {:dev {:extra-paths ["test" "dev" "dev-resources"]
-        :extra-deps {integrant/repl {:mvn/version "0.3.2"}}
+        :extra-deps {integrant/repl {:mvn/version "0.3.2"}
+                     cider/piggieback {:mvn/version "0.5.3"}
+                     com.bhauman/figwheel-main {:mvn/version "0.2.14"}
+                     cjohansen/gadget-inspector {:mvn/version "0.2020.09.10"}}
         :jvm-opts ["-XX:-OmitStackTraceInFastThrow"]}}}

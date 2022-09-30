@@ -1,0 +1,7 @@
+{:main undead.dev
+ :optimizations :none
+ :pretty-print true
+ :source-map true
+ :asset-path "/js/compiled/out"
+ :output-to "dev-resources/public/js/compiled/app.js"
+ :output-dir "dev-resources/public/js/compiled/out"}
