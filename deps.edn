@@ -1,10 +1,13 @@
 {:paths ["src" "resources"]
  :deps {org.clojure/clojure {:mvn/version "1.10.1"}
         org.clojure/clojurescript {:mvn/version "1.10.520"}
+        org.clojure/core.async {:mvn/version "1.5.648"}
+        org.clojure/core.match {:mvn/version "1.0.0"}
         http-kit/http-kit {:mvn/version "2.5.3"}
         compojure/compojure {:mvn/version "1.6.2"}
         integrant/integrant {:mvn/version "0.8.0"}
-        cjohansen/dumdom {:mvn/version "2022.04.12"}}
+        jarohen/chord {:mvn/version "0.8.1"}
+        cjohansen/dumdom {:mvn/version "2022.09.28"}}
  :aliases
  {:dev {:extra-paths ["test" "dev" "dev-resources"]
         :extra-deps {integrant/repl {:mvn/version "0.3.2"}
