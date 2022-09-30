@@ -1,0 +1,10 @@
+{:paths ["src" "resources"]
+ :deps {org.clojure/clojure {:mvn/version "1.10.1"}
+        org.clojure/clojurescript {:mvn/version "1.10.520"}
+        http-kit/http-kit {:mvn/version "2.5.3"}
+        compojure/compojure {:mvn/version "1.6.2"}
+        integrant/integrant {:mvn/version "0.8.0"}}
+ :aliases
+ {:dev {:extra-paths ["test" "dev" "dev-resources"]
+        :extra-deps {integrant/repl {:mvn/version "0.3.2"}}
+        :jvm-opts ["-XX:-OmitStackTraceInFastThrow"]}}}
