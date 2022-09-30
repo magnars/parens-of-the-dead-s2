@@ -2,24 +2,14 @@
   (:require [chord.client :as chord]
             [cljs.core.async :refer [<!]]
             [clojure.core.match :refer [match]]
-            [dumdom.core :as d])
+            [dumdom.core :as d]
+            [undead.client.components :as components])
   (:require-macros [cljs.core.async.macros :refer [go]]))
 
 (defonce store (atom {}))
 
-(d/defcomponent Page [{:keys [zombies]}]
-  [:div.page
-   [:div.surface
-    [:div.skyline
-     (for [i (range 16)]
-       [:div.building {:class (str "building-" i)}])]
-    [:div.zombies
-     (for [zombie (vals zombies)]
-       [:div.zombie-position
-        [:div.zombie {:class (:kind zombie)}]])]]])
-
 (defn render []
-  (d/render (Page @store) (js/document.getElementById "main")))
+  (d/render (components/Page @store) (js/document.getElementById "main")))
 
 (defn start []
   (add-watch store ::me (fn [_ _ _ _] (render)))
