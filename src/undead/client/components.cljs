@@ -1,6 +1,21 @@
 (ns undead.client.components
   (:require [dumdom.core :as d]))
 
+(d/defcomponent Zombie [{:keys [kind hearts]}]
+  [:div.zombie-position
+   [:div.zombie {:class kind}
+    [:div.zombie-health
+     (for [line hearts]
+       [:div (for [heart line]
+               [:div.heart {:class heart}])])]]])
+
+(d/defcomponent DieWithLock [{:keys [status current-face faces cube-class]}]
+  [:div.die-w-lock
+   [:div.die {:class status}
+    [:div.cube {:class cube-class}
+     (for [face faces]
+       [:div.face {:class face}])]]])
+
 (d/defcomponent Page [{:keys [zombies error player dice]}]
   (if error
     [:div.page [:pre error]]
@@ -10,25 +25,11 @@
        (for [i (range 16)]
          [:div.building {:class (str "building-" i)}])]
       [:div.zombies
-       (for [zombie (vals zombies)]
-         [:div.zombie-position
-          [:div.zombie {:class (:kind zombie)}
-           [:div.zombie-health
-            (for [line (:hearts zombie)]
-              [:div (for [heart line]
-                      [:div.heart {:class heart}])])]]])]
+       (map Zombie (vals zombies))]
       [:div.player-health
        (for [heart (:hearts player)]
          [:div {:class heart}])]
       [:div.dice-row
        (interpose
         [:div.dice-spacing]
-        (for [die (vals dice)]
-          [:div.die-w-lock
-           [:div.die {:class (:status die)}
-            [:div.cube {:class (str "entering-" (:current-face die))}
-             (map-indexed
-              (fn [i face]
-                [:div.face {:class [(str "face-" i)
-                                    face]}])
-              (:faces die))]]]))]]]))
+        (map DieWithLock (vals dice)))]]]))

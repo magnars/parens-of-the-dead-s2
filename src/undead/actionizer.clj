@@ -22,9 +22,19 @@
 (defn set-player-health [health]
   [[:assoc-in [:player :hearts] (render-hearts health)]])
 
+(defn render-faces [faces]
+  (map-indexed
+   (fn [i face]
+     [face (str "face-" i)])
+   faces))
+
 (defn add-dice [dice]
   (for [die dice]
-    [:assoc-in [:dice (:id die)] die]))
+    [:assoc-in [:dice (:id die)]
+     (-> die
+         (update :faces render-faces)
+         (assoc :status :entering)
+         (assoc :cube-class (str "entering-" (:current-face die))))]))
 
 (defn event->actions [event]
   (match event

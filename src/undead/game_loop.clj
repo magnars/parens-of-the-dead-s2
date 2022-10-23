@@ -6,6 +6,6 @@
 (defn start! [ws-channel]
   (put! ws-channel
         (try
-          (mapcat actionizer/event->actions game/initial-events)
+          (mapcat actionizer/event->actions (game/get-initial-events (System/currentTimeMillis)))
           (catch Exception e
             [[:assoc-in [:error] (pr-str e)]]))))
