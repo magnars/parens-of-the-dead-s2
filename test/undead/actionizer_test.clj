@@ -27,3 +27,12 @@
            {:kind :biker
             :hearts [[:heart :heart :heart :heart :heart]
                      [:heart :heart :heart :lost]]}]])))
+
+(deftest actionize--set-player-health
+  (is (= (sut/event->actions
+          [:set-player-health {:max 3, :current 3}])
+         [[:assoc-in [:player :hearts] [:heart :heart :heart]]]))
+
+  (is (= (sut/event->actions
+          [:set-player-health {:max 3, :current 2}])
+         [[:assoc-in [:player :hearts] [:heart :heart :lost]]])))
