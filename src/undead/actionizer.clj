@@ -22,7 +22,12 @@
 (defn set-player-health [health]
   [[:assoc-in [:player :hearts] (render-hearts health)]])
 
+(defn add-dice [dice]
+  (for [die dice]
+    [:assoc-in [:dice (:id die)] die]))
+
 (defn event->actions [event]
   (match event
-    [:add-zombie zombie] (add-zombie zombie)
+    [:added-dice dice] (add-dice dice)
+    [:added-zombie zombie] (add-zombie zombie)
     [:set-player-health health] (set-player-health health)))
