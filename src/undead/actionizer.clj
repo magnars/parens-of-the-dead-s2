@@ -37,14 +37,17 @@
        :cube-class (str "entering-" (:current-face die))}])
    [[:wait 1800]]))
 
-(defn set-player-rerolls [n]
+(defn prepare-rerolls [opts]
   [[:assoc-in [:player :rerolls]
-    (for [i (range n)]
-      {:on-click [:reroll i]})]])
+    (for [i (range (:rerolls opts))]
+      (if (contains? (:spent-rerolls opts) i)
+        {:used? true}
+        {:on-click [:reroll i]}))]])
 
 (defn event->actions [event]
   (match event
     [:added-dice dice] (add-dice dice)
     [:added-zombie zombie] (add-zombie zombie)
     [:set-player-health health] (set-player-health health)
-    [:set-player-rerolls n] (set-player-rerolls n)))
+    [:set-player-rerolls n] (prepare-rerolls {:rerolls n})
+    [:spent-reroll opts] (prepare-rerolls opts)))

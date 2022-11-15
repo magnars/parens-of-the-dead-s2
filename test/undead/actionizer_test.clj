@@ -57,3 +57,10 @@
           [:set-player-rerolls 2])
          [[:assoc-in [:player :rerolls] [{:on-click [:reroll 0]}
                                          {:on-click [:reroll 1]}]]])))
+
+(deftest actionize--spend-reroll
+  (is (= (sut/event->actions
+          [:spent-reroll {:rerolls 2
+                          :spent-rerolls #{1}}])
+         [[:assoc-in [:player :rerolls] [{:on-click [:reroll 0]}
+                                         {:used? true}]]])))

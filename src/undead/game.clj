@@ -1,4 +1,5 @@
-(ns undead.game)
+(ns undead.game
+  (:require [clojure.core.match :refer [match]]))
 
 (defn get-initial-events [seed]
   (let [rng (java.util.Random. seed)]
@@ -12,3 +13,10 @@
                      :current-face (mod (.nextInt rng) 6)})]
      [:set-player-rerolls 2]]))
 
+(defn reroll [game n]
+  [[:spent-reroll {:rerolls (:rerolls game)
+                   :spent-rerolls (conj (:spent-rerolls game #{}) n)}]])
+
+(defn perform-command [game command]
+  (match command
+    [:reroll n] (reroll game n)))

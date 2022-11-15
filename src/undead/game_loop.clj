@@ -12,5 +12,8 @@
   (go
     (loop []
       (let [command (:message (<! ws-channel))]
+
+        #_(game/perform-command game command)
+
         (put! ws-channel [[:assoc-in [:error] (pr-str command)]])
         (recur)))))
