@@ -25,19 +25,24 @@
 (defn render-faces [faces]
   (map-indexed
    (fn [i face]
-     [face (str "face-" i)])
+     [(str "face-" i) face])
    faces))
 
 (defn add-dice [dice]
-  (for [die dice]
-    [:assoc-in [:dice (:id die)]
-     (-> die
-         (update :faces render-faces)
-         (assoc :status :entering)
-         (assoc :cube-class (str "entering-" (:current-face die))))]))
+  (concat
+   (for [die dice]
+     [:assoc-in [:dice (:id die)]
+      {:faces (render-faces (:faces die))
+       :die-class "entering"
+       :cube-class (str "entering-" (:current-face die))}])
+   [[:wait 1800]]))
+
+(defn set-player-rerolls [n]
+  [[:assoc-in [:player :rerolls] (repeat n {})]])
 
 (defn event->actions [event]
   (match event
     [:added-dice dice] (add-dice dice)
     [:added-zombie zombie] (add-zombie zombie)
-    [:set-player-health health] (set-player-health health)))
+    [:set-player-health health] (set-player-health health)
+    [:set-player-rerolls n] (set-player-rerolls n)))

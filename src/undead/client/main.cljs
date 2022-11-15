@@ -1,6 +1,6 @@
 (ns undead.client.main
   (:require [chord.client :as chord]
-            [cljs.core.async :refer [<!]]
+            [cljs.core.async :refer [<! timeout]]
             [clojure.core.match :refer [match]]
             [dumdom.core :as d]
             [undead.client.components :as components])
@@ -19,5 +19,9 @@
         (throw error))
       (doseq [action (:message (<! ws-channel))]
         (prn action)
-        (match action
-          [:assoc-in path v] (swap! store assoc-in path v))))))
+        (try
+          (match action
+            [:assoc-in path v] (swap! store assoc-in path v)
+            [:wait ms] (<! (timeout ms)))
+          (catch :default e
+            (swap! store assoc :error (str e))))))))

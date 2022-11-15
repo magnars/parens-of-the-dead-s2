@@ -9,9 +9,9 @@
        [:div (for [heart line]
                [:div.heart {:class heart}])])]]])
 
-(d/defcomponent DieWithLock [{:keys [status current-face faces cube-class]}]
+(d/defcomponent DieWithLock [{:keys [die-class faces cube-class]}]
   [:div.die-w-lock
-   [:div.die {:class status}
+   [:div.die {:class die-class}
     [:div.cube {:class cube-class}
      (for [face faces]
        [:div.face {:class face}])]]])
@@ -32,4 +32,7 @@
       [:div.dice-row
        (interpose
         [:div.dice-spacing]
-        (map DieWithLock (vals dice)))]]]))
+        (map DieWithLock (vals dice)))
+       [:div.rerolls
+        (for [_ (:rerolls player)]
+          [:div.reroll])]]]]))

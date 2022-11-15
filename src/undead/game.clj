@@ -9,5 +9,6 @@
      [:added-dice (for [i (range 5)]
                     {:id (keyword (str "die-" i))
                      :faces [:punch :heal :shields :shovel :punches :skull]
-                     :current-face (mod (.nextInt rng) 6)})]]))
+                     :current-face (mod (.nextInt rng) 6)})]
+     [:set-player-rerolls 2]]))
 

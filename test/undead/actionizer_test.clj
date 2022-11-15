@@ -42,13 +42,17 @@
           [:added-dice [{:id :die-1
                          :faces [:punch :heal :shields :shovel :punches :skull]
                          :current-face 2}]])
-         [[:assoc-in [:dice :die-1] {:id :die-1
-                                     :faces [[:punch "face-0"]
-                                             [:heal "face-1"]
-                                             [:shields "face-2"]
-                                             [:shovel "face-3"]
-                                             [:punches "face-4"]
-                                             [:skull "face-5"]]
-                                     :current-face 2
-                                     :status :entering
-                                     :cube-class "entering-2"}]])))
+         [[:assoc-in [:dice :die-1] {:faces [["face-0" :punch]
+                                             ["face-1" :heal]
+                                             ["face-2" :shields]
+                                             ["face-3" :shovel]
+                                             ["face-4" :punches]
+                                             ["face-5" :skull]]
+                                     :die-class "entering"
+                                     :cube-class "entering-2"}]
+          [:wait 1800]])))
+
+(deftest actionize--set-player-rerolls
+  (is (= (sut/event->actions
+          [:set-player-rerolls 3])
+         [[:assoc-in [:player :rerolls] [{} {} {}]]])))
