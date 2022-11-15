@@ -50,4 +50,5 @@
     [:added-zombie zombie] (add-zombie zombie)
     [:set-player-health health] (set-player-health health)
     [:set-player-rerolls n] (prepare-rerolls {:rerolls n})
+    [:set-seed seed] nil
     [:spent-reroll opts] (prepare-rerolls opts)))

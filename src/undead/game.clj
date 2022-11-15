@@ -11,7 +11,8 @@
                     {:id (keyword (str "die-" i))
                      :faces [:punch :heal :shields :shovel :punches :skull]
                      :current-face (mod (.nextInt rng) 6)})]
-     [:set-player-rerolls 2]]))
+     [:set-player-rerolls 2]
+     [:set-seed (inc seed)]]))
 
 (defn update-game [game event]
   (match event
@@ -19,6 +20,7 @@
     [:added-zombie zombie] game
     [:set-player-health health] game
     [:set-player-rerolls n] (assoc game :rerolls n)
+    [:set-seed seed] game
     [:spent-reroll opt] (assoc game :spent-rerolls (:spent-rerolls opt))))
 
 (defn reroll [game n]
@@ -27,4 +29,5 @@
 
 (defn perform-command [game command]
   (match command
+    [:initialize seed] (get-initial-events seed)
     [:reroll n] (reroll game n)))

@@ -3,16 +3,22 @@
             [undead.actionizer :as actionizer]
             [undead.game :as game]))
 
-(defn start! [ws-channel]
+(defn perform-command [game command]
   (try
-    (let [initial-events (game/get-initial-events (System/currentTimeMillis))
-          initial-game (reduce game/update-game {} initial-events)]
-      (put! ws-channel (mapcat actionizer/event->actions initial-events))
-      (go
-        (loop [game initial-game]
-          (let [command (:message (<! ws-channel))
-                events (game/perform-command game command)]
-            (put! ws-channel (mapcat actionizer/event->actions events))
-            (recur (reduce game/update-game game events))))))
+    (let [events (game/perform-command game command)
+          new-game (reduce game/update-game {} events)
+          actions (mapcat actionizer/event->actions events)]
+      [new-game actions])
     (catch Exception e
-      [[:assoc-in [:error] (pr-str e)]])))
+      [nil [[:assoc-in [:error] (pr-str e)]]])))
+
+(defn start! [ws-channel]
+  (let [[new-game actions] (perform-command {} [:initialize (System/currentTimeMillis)])]
+    (put! ws-channel actions)
+    (go
+      (loop [game new-game]
+        (let [command (:message (<! ws-channel))
+              [updated-game actions] (perform-command game command)]
+          (put! ws-channel actions)
+          (when updated-game
+            (recur updated-game)))))))

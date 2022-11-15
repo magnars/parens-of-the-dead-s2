@@ -15,6 +15,11 @@
 
 ;; perform-command
 
+(deftest perform-command--initialize
+  (is (= (->> (sut/perform-command {} [:initialize 666])
+              (filter #(= :set-seed (first %))))
+         [[:set-seed 667]])))
+
 (deftest perform-command--reroll
   (is (= (sut/perform-command {:rerolls 2} [:reroll 1])
          [[:spent-reroll {:rerolls 2
