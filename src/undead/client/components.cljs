@@ -34,5 +34,6 @@
         [:div.dice-spacing]
         (map DieWithLock (vals dice)))
        [:div.rerolls
-        (for [{:keys [on-click]} (:rerolls player)]
-          [:div.reroll {:on-click on-click}])]]]]))
+        (for [{:keys [on-click used?]} (:rerolls player)]
+          [:div.reroll {:on-click on-click
+                        :class (when used? "used")}])]]]]))

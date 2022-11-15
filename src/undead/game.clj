@@ -13,6 +13,14 @@
                      :current-face (mod (.nextInt rng) 6)})]
      [:set-player-rerolls 2]]))
 
+(defn update-game [game event]
+  (match event
+    [:added-dice dice] game
+    [:added-zombie zombie] game
+    [:set-player-health health] game
+    [:set-player-rerolls n] (assoc game :rerolls n)
+    [:spent-reroll opt] (assoc game :spent-rerolls (:spent-rerolls opt))))
+
 (defn reroll [game n]
   [[:spent-reroll {:rerolls (:rerolls game)
                    :spent-rerolls (conj (:spent-rerolls game #{}) n)}]])
