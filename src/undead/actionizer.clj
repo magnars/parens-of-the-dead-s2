@@ -38,7 +38,9 @@
    [[:wait 1800]]))
 
 (defn set-player-rerolls [n]
-  [[:assoc-in [:player :rerolls] (repeat n {})]])
+  [[:assoc-in [:player :rerolls]
+    (for [i (range n)]
+      {:on-click [:reroll i]})]])
 
 (defn event->actions [event]
   (match event

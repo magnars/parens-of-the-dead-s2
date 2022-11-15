@@ -1,6 +1,6 @@
 (ns undead.client.main
   (:require [chord.client :as chord]
-            [cljs.core.async :refer [<! timeout]]
+            [cljs.core.async :refer [<! put! timeout]]
             [clojure.core.match :refer [match]]
             [dumdom.core :as d]
             [undead.client.components :as components])
@@ -17,11 +17,17 @@
     (let [{:keys [error ws-channel]} (<! (chord/ws-ch "ws://localhost:8666/ws"))]
       (when error
         (throw error))
-      (doseq [action (:message (<! ws-channel))]
-        (prn action)
-        (try
-          (match action
-            [:assoc-in path v] (swap! store assoc-in path v)
-            [:wait ms] (<! (timeout ms)))
-          (catch :default e
-            (swap! store assoc :error (str e))))))))
+      (d/set-event-handler!
+       (fn [_ data]
+         (put! ws-channel data)))
+      (loop []
+        (when-let [actions (:message (<! ws-channel))]
+          (doseq [action actions]
+            (prn action)
+            (try
+              (match action
+                [:assoc-in path v] (swap! store assoc-in path v)
+                [:wait ms] (<! (timeout ms)))
+              (catch :default e
+                (swap! store assoc :error (str e)))))
+          (recur))))))

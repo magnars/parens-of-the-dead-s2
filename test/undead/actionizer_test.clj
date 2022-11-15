@@ -54,5 +54,6 @@
 
 (deftest actionize--set-player-rerolls
   (is (= (sut/event->actions
-          [:set-player-rerolls 3])
-         [[:assoc-in [:player :rerolls] [{} {} {}]]])))
+          [:set-player-rerolls 2])
+         [[:assoc-in [:player :rerolls] [{:on-click [:reroll 0]}
+                                         {:on-click [:reroll 1]}]]])))

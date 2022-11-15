@@ -1,5 +1,5 @@
 (ns undead.game-loop
-  (:require [clojure.core.async :refer [put!]]
+  (:require [clojure.core.async :refer [<! go put!]]
             [undead.actionizer :as actionizer]
             [undead.game :as game]))
 
@@ -8,4 +8,9 @@
         (try
           (mapcat actionizer/event->actions (game/get-initial-events (System/currentTimeMillis)))
           (catch Exception e
-            [[:assoc-in [:error] (pr-str e)]]))))
+            [[:assoc-in [:error] (pr-str e)]])))
+  (go
+    (loop []
+      (let [command (:message (<! ws-channel))]
+        (put! ws-channel [[:assoc-in [:error] (pr-str command)]])
+        (recur)))))
