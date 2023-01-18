@@ -25,6 +25,7 @@
     [:added-dice dice] (add-dice game dice)
     [:added-zombie zombie] game
     [:dice-rolled rolls] (reduce roll-die game rolls)
+    [:set-die-locked? opts] (assoc-in game [:dice (:die-id opts) :locked?] (:locked? opts))
     [:set-player-health health] game
     [:set-player-rerolls n] (assoc game :rerolls n)
     [:set-seed seed] (assoc game :seed seed)
@@ -47,7 +48,12 @@
                         :roll-id (:seed game)})]
        [:set-seed (inc (:seed game))]])))
 
+(defn set-die-locked? [game die-id locked?]
+  (when (get-in game [:dice die-id])
+    [[:set-die-locked? {:die-id die-id, :locked? locked?}]]))
+
 (defn perform-command [game command]
   (match command
     [:initialize seed] (get-initial-events seed)
-    [:reroll n] (reroll game n)))
+    [:reroll n] (reroll game n)
+    [:set-die-locked? die-id locked?] (set-die-locked? game die-id locked?)))

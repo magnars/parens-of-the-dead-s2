@@ -40,6 +40,12 @@
          {:dice {:die-0 {:id :die-0
                          :current-face 3}}})))
 
+(deftest update-game--set-die-locked?
+  (is (= (sut/update-game {:dice {:die-0 {:id :die-0}}}
+                          [:set-die-locked? {:die-id :die-0
+                                             :locked? true}])
+         {:dice {:die-0 {:id :die-0 :locked? true}}})))
+
 ;; perform-command
 
 (deftest perform-command--initialize
@@ -103,3 +109,15 @@
                             :roll-id 0}]]])))
 
   )
+
+(deftest perform-command--set-die-locked?
+  (is (= (->> (sut/perform-command {:dice {:die-0 {:id :die-0}}}
+                                   [:set-die-locked? :die-0 true])
+              (filter-events #{:set-die-locked?}))
+         [[:set-die-locked? {:die-id :die-0
+                             :locked? true}]]))
+
+  (is (= (->> (sut/perform-command {:dice {:die-0 {:id :die-0}}}
+                                   [:set-die-locked? :die-6 true])
+              (filter-events #{:set-die-locked?}))
+         [])))

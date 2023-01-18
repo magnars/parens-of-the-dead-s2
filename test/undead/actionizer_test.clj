@@ -48,6 +48,7 @@
                                              ["face-3" :shovel]
                                              ["face-4" :punches]
                                              ["face-5" :skull]]
+                                     :lock-command [:set-die-locked? :die-1 true]
                                      :die-class "entering"
                                      :cube-class "entering-2"}]
           [:wait 1800]])))
@@ -82,3 +83,16 @@
           [:assoc-in [:dice :die-1 :cube-class] "roll-2-to-4"]
           [:assoc-in [:dice :die-1 :key] "die-1-0"]
           [:wait 1800]])))
+
+(deftest actionize-set-die-locked?
+  (is (= (sut/event->actions
+          [:set-die-locked? {:die-id :die-0
+                             :locked? true}])
+         [[:assoc-in [:dice :die-0 :clamp-class] "locked"]
+          [:assoc-in [:dice :die-0 :lock-command] [:set-die-locked? :die-0 false]]]))
+
+  (is (= (sut/event->actions
+          [:set-die-locked? {:die-id :die-0
+                             :locked? false}])
+         [[:assoc-in [:dice :die-0 :clamp-class] nil]
+          [:assoc-in [:dice :die-0 :lock-command] [:set-die-locked? :die-0 true]]])))

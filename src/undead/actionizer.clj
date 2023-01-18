@@ -33,6 +33,7 @@
    (for [die dice]
      [:assoc-in [:dice (:id die)]
       {:faces (render-faces (:faces die))
+       :lock-command [:set-die-locked? (:id die) true]
        :die-class "entering"
        :cube-class (str "entering-" (:current-face die))}])
    [[:wait 1800]]))
@@ -54,11 +55,16 @@
     rolls)
    [[:wait 1800]]))
 
+(defn set-die-locked? [{:keys [die-id locked?]}]
+  [[:assoc-in [:dice die-id :clamp-class] (when locked? "locked")]
+   [:assoc-in [:dice die-id :lock-command] [:set-die-locked? die-id (not locked?)]]])
+
 (defn event->actions [event]
   (match event
     [:added-dice dice] (add-dice dice)
     [:added-zombie zombie] (add-zombie zombie)
     [:dice-rolled rolls] (roll-dice rolls)
+    [:set-die-locked? opts] (set-die-locked? opts)
     [:set-player-health health] (set-player-health health)
     [:set-player-rerolls n] (prepare-rerolls {:rerolls n})
     [:set-seed seed] nil

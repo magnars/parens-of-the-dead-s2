@@ -10,13 +10,16 @@
                [:div.heart {:class heart}])])]]])
 
 (d/defcomponent DieWithLock
-  [{:keys [die-class faces cube-class key]}]
+  [{:keys [die-class faces cube-class key clamp-class lock-command]}]
   [:div.die-w-lock
    [:div.die {:key key
               :class die-class}
     [:div.cube {:class cube-class}
      (for [face faces]
-       [:div.face {:class face}])]]])
+       [:div.face {:class face}])]]
+   [:div.clamp {:class clamp-class}
+    [:div.lock {:on-click lock-command}
+     [:div.padlock]]]])
 
 (d/defcomponent Page [{:keys [zombies error player dice]}]
   (if error
