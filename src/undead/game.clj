@@ -14,9 +14,12 @@
      [:set-player-rerolls 2]
      [:set-seed (inc seed)]]))
 
+(defn add-dice [game dice]
+  (update game :dice (fnil into {}) (map (juxt :id identity) dice)))
+
 (defn update-game [game event]
   (match event
-    [:added-dice dice] game
+    [:added-dice dice] (add-dice game dice)
     [:added-zombie zombie] game
     [:set-player-health health] game
     [:set-player-rerolls n] (assoc game :rerolls n)
@@ -30,9 +33,15 @@
 
 (defn reroll [game n]
   (when (reroll-allowed? game n)
-    [[:spent-reroll {:rerolls (:rerolls game)
-                     :spent-rerolls (conj (:spent-rerolls game #{}) n)}]
-     [:set-seed (inc (:seed game))]]))
+    (let [rng (java.util.Random. (:seed game))]
+      [[:spent-reroll {:rerolls (:rerolls game)
+                       :spent-rerolls (conj (:spent-rerolls game #{}) n)}]
+       [:dice-rolled (for [die (vals (:dice game))]
+                       {:die-id (:id die)
+                        :from (:current-face die)
+                        :to (mod (.nextInt rng) (count (:faces die)))
+                        :roll-id (:seed game)})]
+       [:set-seed (inc (:seed game))]])))
 
 (defn perform-command [game command]
   (match command
