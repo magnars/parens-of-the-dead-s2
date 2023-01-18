@@ -44,10 +44,21 @@
         {:used? true}
         {:on-click [:reroll i]}))]])
 
+(defn roll-dice [rolls]
+  (concat
+   (mapcat
+    (fn [{:keys [die-id from to roll-id]}]
+      [[:assoc-in [:dice die-id :die-class] "rolling"]
+       [:assoc-in [:dice die-id :cube-class] (str "roll-" from "-to-" to)]
+       [:assoc-in [:dice die-id :key] (str (name die-id) "-" roll-id)]])
+    rolls)
+   [[:wait 1800]]))
+
 (defn event->actions [event]
   (match event
     [:added-dice dice] (add-dice dice)
     [:added-zombie zombie] (add-zombie zombie)
+    [:dice-rolled rolls] (roll-dice rolls)
     [:set-player-health health] (set-player-health health)
     [:set-player-rerolls n] (prepare-rerolls {:rerolls n})
     [:set-seed seed] nil

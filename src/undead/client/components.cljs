@@ -9,9 +9,11 @@
        [:div (for [heart line]
                [:div.heart {:class heart}])])]]])
 
-(d/defcomponent DieWithLock [{:keys [die-class faces cube-class]}]
+(d/defcomponent DieWithLock
+  [{:keys [die-class faces cube-class key]}]
   [:div.die-w-lock
-   [:div.die {:class die-class}
+   [:div.die {:key key
+              :class die-class}
     [:div.cube {:class cube-class}
      (for [face faces]
        [:div.face {:class face}])]]])

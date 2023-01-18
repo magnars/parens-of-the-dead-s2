@@ -17,13 +17,17 @@
 (defn add-dice [game dice]
   (update game :dice (fnil into {}) (map (juxt :id identity) dice)))
 
+(defn roll-die [game roll]
+  (assoc-in game [:dice (:die-id roll) :current-face] (:to roll)))
+
 (defn update-game [game event]
   (match event
     [:added-dice dice] (add-dice game dice)
     [:added-zombie zombie] game
+    [:dice-rolled rolls] (reduce roll-die game rolls)
     [:set-player-health health] game
     [:set-player-rerolls n] (assoc game :rerolls n)
-    [:set-seed seed] game
+    [:set-seed seed] (assoc game :seed seed)
     [:spent-reroll opt] (assoc game :spent-rerolls (:spent-rerolls opt))))
 
 (defn reroll-allowed? [{:keys [rerolls spent-rerolls]} n]

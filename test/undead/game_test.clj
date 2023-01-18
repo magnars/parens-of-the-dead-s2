@@ -33,6 +33,13 @@
             :die-1 {:id :die-1}
             :die-2 {:id :die-2}}))))
 
+(deftest update-game--dice-rolled
+  (is (= (sut/update-game {:dice {:die-0 {:id :die-0}}}
+                          [:dice-rolled [{:die-id :die-0
+                                          :to 3}]])
+         {:dice {:die-0 {:id :die-0
+                         :current-face 3}}})))
+
 ;; perform-command
 
 (deftest perform-command--initialize

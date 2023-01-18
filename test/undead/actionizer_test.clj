@@ -64,3 +64,21 @@
                           :spent-rerolls #{1}}])
          [[:assoc-in [:player :rerolls] [{:on-click [:reroll 0]}
                                          {:used? true}]]])))
+
+(deftest actionize--roll-dice
+  (is (= (sut/event->actions
+          [:dice-rolled [{:die-id :die-0
+                          :from 1
+                          :to 2
+                          :roll-id 0}
+                         {:die-id :die-1
+                          :from 2
+                          :to 4
+                          :roll-id 0}]])
+         [[:assoc-in [:dice :die-0 :die-class] "rolling"]
+          [:assoc-in [:dice :die-0 :cube-class] "roll-1-to-2"]
+          [:assoc-in [:dice :die-0 :key] "die-0-0"]
+          [:assoc-in [:dice :die-1 :die-class] "rolling"]
+          [:assoc-in [:dice :die-1 :cube-class] "roll-2-to-4"]
+          [:assoc-in [:dice :die-1 :key] "die-1-0"]
+          [:wait 1800]])))
