@@ -6,7 +6,7 @@
 (defn perform-command [game command]
   (try
     (let [events (game/perform-command game command)
-          new-game (reduce game/update-game {} events)
+          new-game (reduce game/update-game game events)
           actions (mapcat actionizer/event->actions events)]
       [new-game actions])
     (catch Exception e

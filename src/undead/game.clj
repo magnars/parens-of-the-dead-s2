@@ -23,9 +23,16 @@
     [:set-seed seed] game
     [:spent-reroll opt] (assoc game :spent-rerolls (:spent-rerolls opt))))
 
+(defn reroll-allowed? [{:keys [rerolls spent-rerolls]} n]
+  (and
+   (< -1 n rerolls)
+   (not (contains? (set spent-rerolls) n))))
+
 (defn reroll [game n]
-  [[:spent-reroll {:rerolls (:rerolls game)
-                   :spent-rerolls (conj (:spent-rerolls game #{}) n)}]])
+  (when (reroll-allowed? game n)
+    [[:spent-reroll {:rerolls (:rerolls game)
+                     :spent-rerolls (conj (:spent-rerolls game #{}) n)}]
+     [:set-seed (inc (:seed game))]]))
 
 (defn perform-command [game command]
   (match command
