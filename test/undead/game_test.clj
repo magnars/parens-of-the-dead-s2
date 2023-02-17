@@ -211,4 +211,18 @@
                               :damage 2
                               :die-ids #{:die-0 :die-1}
                               :health {:max 8 :current 2}}]
-            [:killed-zombie :zombie-1]]))))
+            [:killed-zombie :zombie-1]])))
+
+  (testing "Unlocks locked dice in the game"
+    (is (= (->> (sut/perform-command
+                 {:dice {:die-0 {:id :die-0
+                                 :faces faces
+                                 :locked? true
+                                 :current-face 0}
+                         :die-1 {:id :die-1
+                                 :faces faces
+                                 :current-face 4}}}
+                 [:finish-turn {:target :zombie-1}])
+                (filter-events #{:set-die-locked?}))
+           [[:set-die-locked? {:die-id :die-0
+                               :locked? false}]]))))

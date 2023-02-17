@@ -65,13 +65,18 @@
 (def punch-classes (cycle ["punched-3" "punched-1" "punched-4" "punched-2" "punched-5"]))
 
 (defn punch-zombie [{:keys [zombie-id damage die-ids health]}]
-  (mapcat (fn [class i]
-            [[:assoc-in [:zombies zombie-id :class] class]
-             [:assoc-in [:zombies :zombie-1 :hearts]
-              (prepare-hearts (update health :current - 1 i))]
-             [:wait 200]])
-          (take damage punch-classes)
-          (range)))
+  (concat
+   (for [id die-ids]
+     [:assoc-in [:dice id :die-class] "using"])
+   (mapcat (fn [class i]
+             [[:assoc-in [:zombies zombie-id :class] class]
+              [:assoc-in [:zombies :zombie-1 :hearts]
+               (prepare-hearts (update health :current - 1 i))]
+              [:wait 200]])
+           (take damage punch-classes)
+           (range))
+   (for [id die-ids]
+     [:assoc-in [:dice id :die-class] "used"])))
 
 (defn kill-zombie [target]
   [[:assoc-in [:zombies target :class] "falling"]

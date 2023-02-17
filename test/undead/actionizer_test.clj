@@ -105,12 +105,16 @@
                             :damage 2
                             :die-ids #{:die-0 :die-1}
                             :health {:max 4 :current 3}}])
-         [[:assoc-in [:zombies :zombie-1 :class] "punched-3"]
+         [[:assoc-in [:dice :die-0 :die-class] "using"]
+          [:assoc-in [:dice :die-1 :die-class] "using"]
+          [:assoc-in [:zombies :zombie-1 :class] "punched-3"]
           [:assoc-in [:zombies :zombie-1 :hearts] [[:heart :heart :lost :lost]]]
           [:wait 200]
           [:assoc-in [:zombies :zombie-1 :class] "punched-1"]
           [:assoc-in [:zombies :zombie-1 :hearts] [[:heart :lost :lost :lost]]]
-          [:wait 200]])))
+          [:wait 200]
+          [:assoc-in [:dice :die-0 :die-class] "used"]
+          [:assoc-in [:dice :die-1 :die-class] "used"]])))
 
 (deftest actionize--killed-zombie
   (is (= (sut/event->actions

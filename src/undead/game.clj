@@ -72,7 +72,7 @@
   (when (get-in game [:dice die-id])
     [[:set-die-locked? {:die-id die-id, :locked? locked?}]]))
 
-(defn finish-turn [game {:keys [target]}]
+(defn deliver-package-of-punches [game target]
   (when-let [zombie (get-in game [:zombies target])]
     (let [{:keys [punches]} (get-die-effects (vals (:dice game)))
           damage (min (:value punches)
@@ -83,6 +83,15 @@
                                  :health (:health zombie)}]]
         (= damage (:current (:health zombie)))
         (conj [:killed-zombie target])))))
+
+(defn unlock-dice [game]
+  (->> (vals (:dice game))
+       (filter :locked?)
+       (mapcat #(set-die-locked? game (:id %) false))))
+
+(defn finish-turn [game {:keys [target]}]
+  (concat (deliver-package-of-punches game target)
+          (unlock-dice game)))
 
 (defn perform-command [game command]
   (match command
