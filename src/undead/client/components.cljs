@@ -1,9 +1,10 @@
 (ns undead.client.components
   (:require [dumdom.core :as d]))
 
-(d/defcomponent Zombie [{:keys [kind hearts]}]
+(d/defcomponent Zombie [{:keys [kind on-click hearts]}]
   [:div.zombie-position
-   [:div.zombie {:class kind}
+   [:div.zombie {:class kind
+                 :on-click on-click}
     [:div.zombie-health
      (for [line hearts]
        [:div (for [heart line]

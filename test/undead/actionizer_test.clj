@@ -3,30 +3,32 @@
             [undead.actionizer :as sut]))
 
 (deftest actionize--added-zombie
-  (is (= (sut/event->actions
-          [:added-zombie {:id :zombie-1
-                          :kind :biker
-                          :health {:max 4 :current 4}}])
-         [[:assoc-in [:zombies :zombie-1]
-           {:kind :biker
-            :hearts [[:heart :heart :heart :heart]]}]]))
+  (testing "adding zombies"
+    (is (= (sut/event->actions
+            [:added-zombie {:id :zombie-1
+                            :kind :biker
+                            :health {:max 4 :current 4}}])
+           [[:assoc-in [:zombies :zombie-1]
+             {:kind :biker
+              :hearts [[:heart :heart :heart :heart]]
+              :on-click [:finish-turn {:target :zombie-1}]}]])))
 
-  (is (= (sut/event->actions
-          [:added-zombie {:id :zombie-1
-                          :kind :biker
-                          :health {:max 4 :current 3}}])
-         [[:assoc-in [:zombies :zombie-1]
-           {:kind :biker
-            :hearts [[:heart :heart :heart :lost]]}]]))
+  (testing "lost hearts"
+    (is (= (-> (sut/event->actions
+                [:added-zombie {:id :zombie-1
+                                :kind :biker
+                                :health {:max 4 :current 3}}])
+               first last :hearts)
+           [[:heart :heart :heart :lost]])))
 
-  (is (= (sut/event->actions
-          [:added-zombie {:id :zombie-1
-                          :kind :biker
-                          :health {:max 9 :current 8}}])
-         [[:assoc-in [:zombies :zombie-1]
-           {:kind :biker
-            :hearts [[:heart :heart :heart :heart :heart]
-                     [:heart :heart :heart :lost]]}]])))
+  (testing "balance hearts"
+    (is (= (-> (sut/event->actions
+                [:added-zombie {:id :zombie-1
+                                :kind :biker
+                                :health {:max 9 :current 8}}])
+               first last :hearts)
+           [[:heart :heart :heart :heart :heart]
+            [:heart :heart :heart :lost]]))))
 
 (deftest actionize--set-player-health
   (is (= (sut/event->actions

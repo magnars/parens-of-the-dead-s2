@@ -60,6 +60,11 @@
             :die-1 {:id :die-1}
             :die-2 {:id :die-2}}))))
 
+(deftest update-game--added-zombie
+  (is (= (-> (sut/update-game {} [:added-zombie {:id :zombie-0}])
+             :zombies)
+         {:zombie-0 {:id :zombie-0}})))
+
 (deftest update-game--dice-rolled
   (is (= (sut/update-game {:dice {:die-0 {:id :die-0}}}
                           [:dice-rolled [{:die-id :die-0
@@ -145,3 +150,28 @@
                                    [:set-die-locked? :die-6 true])
               (filter-events #{:set-die-locked?}))
          [])))
+
+(deftest perform-command--finish-turn
+  (testing "Punch a zombie!"
+    (is (= (->> (sut/perform-command
+                 {:dice {:die-0 {:id :die-0
+                                 :faces faces
+                                 :current-face 0}}
+                  :zombies {:zombie-0 {:id :zombie-0
+                                       :kind :biker
+                                       :health {:max 8 :current 6}}}}
+                 [:finish-turn {:target :zombie-0}])
+                (filter-events #{:punched-zombie}))
+           [[:punched-zombie {:zombie-id :zombie-0
+                              :damage 1
+                              :die-ids #{:die-0}
+                              :health {:max 8 :current 6}}]])))
+
+  (testing "Cannot punch non-existent zombie"
+    (is (= (->> (sut/perform-command
+                 {:dice {:die-0 {:id :die-0
+                                 :faces faces
+                                 :current-face 0}}}
+                 [:finish-turn {:target :zombie-0}])
+                (filter-events #{:punched-zombie}))
+           []))))

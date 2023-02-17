@@ -13,6 +13,7 @@
 
 (defn prepare-zombie [zombie]
   {:kind (:kind zombie)
+   :on-click [:finish-turn {:target (:id zombie)}]
    :hearts (balance-hearts
             (render-hearts (:health zombie)))})
 
