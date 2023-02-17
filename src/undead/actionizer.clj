@@ -11,11 +11,13 @@
           (repeat (- (:max health)
                      (:current health)) :lost)))
 
+(defn prepare-hearts [health]
+  (balance-hearts (render-hearts health)))
+
 (defn prepare-zombie [zombie]
   {:kind (:kind zombie)
    :on-click [:finish-turn {:target (:id zombie)}]
-   :hearts (balance-hearts
-            (render-hearts (:health zombie)))})
+   :hearts (prepare-hearts (:health zombie))})
 
 (defn add-zombie [zombie]
   [[:assoc-in [:zombies (:id zombie)] (prepare-zombie zombie)]])
@@ -60,8 +62,16 @@
   [[:assoc-in [:dice die-id :clamp-class] (when locked? "locked")]
    [:assoc-in [:dice die-id :lock-command] [:set-die-locked? die-id (not locked?)]]])
 
+(def punch-classes (cycle ["punched-3" "punched-1" "punched-4" "punched-2" "punched-5"]))
+
 (defn punch-zombie [{:keys [zombie-id damage die-ids health]}]
-  [[:assoc-in [:zombies zombie-id :class] "punched-1"]])
+  (mapcat (fn [class i]
+            [[:assoc-in [:zombies zombie-id :class] class]
+             [:assoc-in [:zombies :zombie-1 :hearts]
+              (prepare-hearts (update health :current - 1 i))]
+             [:wait 200]])
+          (take damage punch-classes)
+          (range)))
 
 (defn event->actions [event]
   (match event

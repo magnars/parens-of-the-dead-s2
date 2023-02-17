@@ -104,7 +104,12 @@
           [:punched-zombie {:zombie-id :zombie-1
                             :damage 2
                             :die-ids #{:die-0 :die-1}
-                            :health {:max 8 :current 3}}])
-         [[:assoc-in [:zombies :zombie-1 :class] "punched-1"]]))
+                            :health {:max 4 :current 3}}])
+         [[:assoc-in [:zombies :zombie-1 :class] "punched-3"]
+          [:assoc-in [:zombies :zombie-1 :hearts] [[:heart :heart :lost :lost]]]
+          [:wait 200]
+          [:assoc-in [:zombies :zombie-1 :class] "punched-1"]
+          [:assoc-in [:zombies :zombie-1 :hearts] [[:heart :lost :lost :lost]]]
+          [:wait 200]]))
 
 )
