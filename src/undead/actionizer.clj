@@ -73,11 +73,17 @@
           (take damage punch-classes)
           (range)))
 
+(defn kill-zombie [target]
+  [[:assoc-in [:zombies target :class] "falling"]
+   [:wait 700]
+   [:dissoc-in [:zombies] target]])
+
 (defn event->actions [event]
   (match event
     [:added-dice dice] (add-dice dice)
     [:added-zombie zombie] (add-zombie zombie)
     [:dice-rolled rolls] (roll-dice rolls)
+    [:killed-zombie target] (kill-zombie target)
     [:punched-zombie opts] (punch-zombie opts)
     [:set-die-locked? opts] (set-die-locked? opts)
     [:set-player-health health] (set-player-health health)

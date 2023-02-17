@@ -90,6 +90,12 @@
                                :kind :biker
                                :health {:max 8 :current 1}}}})))
 
+(deftest update-game--killed-zombie
+  (is (empty? (-> (sut/update-game
+                   {:zombies {:zombie-1 {:id :zombie-1}}}
+                   [:killed-zombie :zombie-1])
+                  :zombies))))
+
 ;; perform-command
 
 (deftest perform-command--initialize
@@ -200,8 +206,9 @@
                                        :kind :biker
                                        :health {:max 8 :current 2}}}}
                  [:finish-turn {:target :zombie-1}])
-                (filter-events #{:punched-zombie}))
+                (filter-events #{:punched-zombie :killed-zombie}))
            [[:punched-zombie {:zombie-id :zombie-1
                               :damage 2
                               :die-ids #{:die-0 :die-1}
-                              :health {:max 8 :current 2}}]]))))
+                              :health {:max 8 :current 2}}]
+            [:killed-zombie :zombie-1]]))))

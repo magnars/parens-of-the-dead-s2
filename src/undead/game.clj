@@ -42,6 +42,7 @@
     [:added-dice dice] (add-dice game dice)
     [:added-zombie zombie] (assoc-in game [:zombies (:id zombie)] zombie)
     [:dice-rolled rolls] (reduce roll-die game rolls)
+    [:killed-zombie zombie-id] (update game :zombies dissoc zombie-id)
     [:punched-zombie opts] (punch-zombie game opts)
     [:set-die-locked? opts] (assoc-in game [:dice (:die-id opts) :locked?] (:locked? opts))
     [:set-player-health health] game
@@ -73,12 +74,15 @@
 
 (defn finish-turn [game {:keys [target]}]
   (when-let [zombie (get-in game [:zombies target])]
-    (let [{:keys [punches]} (get-die-effects (vals (:dice game)))]
-      [[:punched-zombie {:zombie-id (:id zombie)
-                         :damage (min (:value punches)
-                                      (:current (:health zombie)))
-                         :die-ids (:die-ids punches)
-                         :health (:health zombie)}]])))
+    (let [{:keys [punches]} (get-die-effects (vals (:dice game)))
+          damage (min (:value punches)
+                      (:current (:health zombie)))]
+      (cond-> [[:punched-zombie {:zombie-id (:id zombie)
+                                 :damage damage
+                                 :die-ids (:die-ids punches)
+                                 :health (:health zombie)}]]
+        (= damage (:current (:health zombie)))
+        (conj [:killed-zombie target])))))
 
 (defn perform-command [game command]
   (match command

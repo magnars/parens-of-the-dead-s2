@@ -110,6 +110,11 @@
           [:wait 200]
           [:assoc-in [:zombies :zombie-1 :class] "punched-1"]
           [:assoc-in [:zombies :zombie-1 :hearts] [[:heart :lost :lost :lost]]]
-          [:wait 200]]))
+          [:wait 200]])))
 
-)
+(deftest actionize--killed-zombie
+  (is (= (sut/event->actions
+          [:killed-zombie :zombie-2])
+         [[:assoc-in [:zombies :zombie-2 :class] "falling"]
+          [:wait 700]
+          [:dissoc-in [:zombies] :zombie-2]])))

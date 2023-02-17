@@ -27,6 +27,7 @@
             (try
               (match action
                 [:assoc-in path v] (swap! store assoc-in path v)
+                [:dissoc-in path k] (swap! store update-in path dissoc k)
                 [:wait ms] (<! (timeout ms)))
               (catch :default e
                 (swap! store assoc :error (str e)))))
