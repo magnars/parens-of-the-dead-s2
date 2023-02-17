@@ -1,14 +1,17 @@
 (ns undead.client.components
   (:require [dumdom.core :as d]))
 
-(d/defcomponent Zombie [{:keys [kind on-click hearts]}]
+(d/defcomponent Zombie [{:keys [kind on-click hearts class]}]
   [:div.zombie-position
-   [:div.zombie {:class kind
+   [:div.zombie {:class [kind class]
                  :on-click on-click}
     [:div.zombie-health
      (for [line hearts]
        [:div (for [heart line]
-               [:div.heart {:class heart}])])]]])
+               [:div.heart {:class heart}])])]
+    [:div.zombie-punches
+     (for [i (range 1 6)]
+       [:div {:class (str "zombie-punch-" i)}])]]])
 
 (d/defcomponent DieWithLock
   [{:keys [die-class faces cube-class key clamp-class lock-command]}]

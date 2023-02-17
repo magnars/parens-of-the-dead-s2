@@ -98,3 +98,13 @@
                              :locked? false}])
          [[:assoc-in [:dice :die-0 :clamp-class] nil]
           [:assoc-in [:dice :die-0 :lock-command] [:set-die-locked? :die-0 true]]])))
+
+(deftest actionize--punched-zombie
+  (is (= (sut/event->actions
+          [:punched-zombie {:zombie-id :zombie-1
+                            :damage 2
+                            :die-ids #{:die-0 :die-1}
+                            :health {:max 8 :current 3}}])
+         [[:assoc-in [:zombies :zombie-1 :class] "punched-1"]]))
+
+)

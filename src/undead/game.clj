@@ -34,11 +34,15 @@
 (defn roll-die [game roll]
   (assoc-in game [:dice (:die-id roll) :current-face] (:to roll)))
 
+(defn punch-zombie [game {:keys [zombie-id damage]}]
+  (update-in game [:zombies zombie-id :health :current] - damage))
+
 (defn update-game [game event]
   (match event
     [:added-dice dice] (add-dice game dice)
     [:added-zombie zombie] (assoc-in game [:zombies (:id zombie)] zombie)
     [:dice-rolled rolls] (reduce roll-die game rolls)
+    [:punched-zombie opts] (punch-zombie game opts)
     [:set-die-locked? opts] (assoc-in game [:dice (:die-id opts) :locked?] (:locked? opts))
     [:set-player-health health] game
     [:set-player-rerolls n] (assoc game :rerolls n)
@@ -69,10 +73,12 @@
 
 (defn finish-turn [game {:keys [target]}]
   (when-let [zombie (get-in game [:zombies target])]
-    [[:punched-zombie {:zombie-id :zombie-0
-                       :damage 1
-                       :die-ids #{:die-0}
-                       :health {:max 8 :current 6}}]]))
+    (let [{:keys [punches]} (get-die-effects (vals (:dice game)))]
+      [[:punched-zombie {:zombie-id (:id zombie)
+                         :damage (min (:value punches)
+                                      (:current (:health zombie)))
+                         :die-ids (:die-ids punches)
+                         :health (:health zombie)}]])))
 
 (defn perform-command [game command]
   (match command

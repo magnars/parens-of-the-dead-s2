@@ -78,6 +78,18 @@
                                              :locked? true}])
          {:dice {:die-0 {:id :die-0 :locked? true}}})))
 
+(deftest update-game--punched-zombie
+  (is (= (sut/update-game {:zombies {:zombie-1 {:id :zombie-1
+                                                :kind :biker
+                                                :health {:max 8 :current 3}}}}
+                          [:punched-zombie {:zombie-id :zombie-1
+                                            :damage 2
+                                            :die-ids #{:die-0 :die-1}
+                                            :health {:max 8 :current 3}}])
+         {:zombies {:zombie-1 {:id :zombie-1
+                               :kind :biker
+                               :health {:max 8 :current 1}}}})))
+
 ;; perform-command
 
 (deftest perform-command--initialize
@@ -174,4 +186,22 @@
                                  :current-face 0}}}
                  [:finish-turn {:target :zombie-0}])
                 (filter-events #{:punched-zombie}))
-           []))))
+           [])))
+
+  (testing "Cannot remove life that is not there"
+    (is (= (->> (sut/perform-command
+                 {:dice {:die-0 {:id :die-0
+                                 :faces faces
+                                 :current-face 0}
+                         :die-1 {:id :die-1
+                                 :faces faces
+                                 :current-face 4}}
+                  :zombies {:zombie-1 {:id :zombie-1
+                                       :kind :biker
+                                       :health {:max 8 :current 2}}}}
+                 [:finish-turn {:target :zombie-1}])
+                (filter-events #{:punched-zombie}))
+           [[:punched-zombie {:zombie-id :zombie-1
+                              :damage 2
+                              :die-ids #{:die-0 :die-1}
+                              :health {:max 8 :current 2}}]]))))

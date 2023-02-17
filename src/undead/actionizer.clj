@@ -60,11 +60,15 @@
   [[:assoc-in [:dice die-id :clamp-class] (when locked? "locked")]
    [:assoc-in [:dice die-id :lock-command] [:set-die-locked? die-id (not locked?)]]])
 
+(defn punch-zombie [{:keys [zombie-id damage die-ids health]}]
+  [[:assoc-in [:zombies zombie-id :class] "punched-1"]])
+
 (defn event->actions [event]
   (match event
     [:added-dice dice] (add-dice dice)
     [:added-zombie zombie] (add-zombie zombie)
     [:dice-rolled rolls] (roll-dice rolls)
+    [:punched-zombie opts] (punch-zombie opts)
     [:set-die-locked? opts] (set-die-locked? opts)
     [:set-player-health health] (set-player-health health)
     [:set-player-rerolls n] (prepare-rerolls {:rerolls n})
