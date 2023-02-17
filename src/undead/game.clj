@@ -1,6 +1,20 @@
 (ns undead.game
   (:require [clojure.core.match :refer [match]]))
 
+(defn current-face [die]
+  (nth (:faces die) (:current-face die)))
+
+(defn punch-value [die]
+  (case (current-face die)
+    :punch 1
+    :punches 2
+    0))
+
+(defn get-die-effects [dice]
+  {:punches (let [punch-dice (filter (comp #{:punch :punches} current-face) dice)]
+              {:value (apply + (map punch-value punch-dice))
+               :die-ids (set (map :id punch-dice))})})
+
 (defn get-initial-events [seed]
   (let [rng (java.util.Random. seed)]
     [[:added-zombie {:id :zombie-1
@@ -41,7 +55,8 @@
     (let [rng (java.util.Random. (:seed game))]
       [[:spent-reroll {:rerolls (:rerolls game)
                        :spent-rerolls (conj (:spent-rerolls game #{}) n)}]
-       [:dice-rolled (for [die (vals (:dice game))]
+       [:dice-rolled (for [die (->> (vals (:dice game))
+                                    (remove :locked?))]
                        {:die-id (:id die)
                         :from (:current-face die)
                         :to (mod (.nextInt rng) (count (:faces die)))

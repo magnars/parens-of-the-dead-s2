@@ -7,6 +7,33 @@
 
 (def faces [:punch :heal :shields :shovel :punches :skull])
 
+;; die effects
+
+(deftest get-die-effects
+  (testing "two separate punches"
+    (is (= (sut/get-die-effects
+            [{:id :die-0
+              :faces faces
+              :current-face 0}
+
+             {:id :die-1
+              :faces faces
+              :current-face 0}])
+           {:punches {:value 2
+                      :die-ids #{:die-0 :die-1}}})))
+
+  (testing "a separate punch and a double punch"
+    (is (= (sut/get-die-effects
+            [{:id :die-0
+              :faces faces
+              :current-face 0}
+
+             {:id :die-1
+              :faces faces
+              :current-face 4}])
+           {:punches {:value 3
+                      :die-ids #{:die-0 :die-1}}}))))
+
 ;; update-game
 
 (deftest update-game--set-player-rerolls
@@ -95,6 +122,7 @@
                                                      :faces faces
                                                      :current-face 1}
                                              :die-1 {:id :die-1
+                                                     :locked? true
                                                      :faces faces
                                                      :current-face 2}}}
                                      [:reroll 0])
@@ -102,10 +130,6 @@
            [[:dice-rolled [{:die-id :die-0
                             :from 1
                             :to 2
-                            :roll-id 0}
-                           {:die-id :die-1
-                            :from 2
-                            :to 4
                             :roll-id 0}]]])))
 
   )
