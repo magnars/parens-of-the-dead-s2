@@ -172,7 +172,8 @@
 (deftest perform-command--finish-turn
   (testing "Punch a zombie!"
     (is (= (->> (sut/perform-command
-                 {:dice {:die-0 {:id :die-0
+                 {:seed 1
+                  :dice {:die-0 {:id :die-0
                                  :faces faces
                                  :current-face 0}}
                   :zombies {:zombie-0 {:id :zombie-0
@@ -187,7 +188,8 @@
 
   (testing "Cannot punch non-existent zombie"
     (is (= (->> (sut/perform-command
-                 {:dice {:die-0 {:id :die-0
+                 {:seed 1
+                  :dice {:die-0 {:id :die-0
                                  :faces faces
                                  :current-face 0}}}
                  [:finish-turn {:target :zombie-0}])
@@ -196,7 +198,8 @@
 
   (testing "Cannot remove life that is not there"
     (is (= (->> (sut/perform-command
-                 {:dice {:die-0 {:id :die-0
+                 {:seed 1
+                  :dice {:die-0 {:id :die-0
                                  :faces faces
                                  :current-face 0}
                          :die-1 {:id :die-1
@@ -215,7 +218,8 @@
 
   (testing "Unlocks locked dice in the game"
     (is (= (->> (sut/perform-command
-                 {:dice {:die-0 {:id :die-0
+                 {:seed 1
+                  :dice {:die-0 {:id :die-0
                                  :faces faces
                                  :locked? true
                                  :current-face 0}
@@ -225,4 +229,26 @@
                  [:finish-turn {:target :zombie-1}])
                 (filter-events #{:set-die-locked?}))
            [[:set-die-locked? {:die-id :die-0
-                               :locked? false}]]))))
+                               :locked? false}]])))
+
+  (testing "Rerolls the dice"
+    (is (= (->> (sut/perform-command
+                 {:seed 1
+                  :dice {:die-0 {:id :die-0
+                                 :faces faces
+                                 :locked? true
+                                 :current-face 0}
+                         :die-1 {:id :die-1
+                                 :faces faces
+                                 :current-face 4}}}
+                 [:finish-turn {:target :zombie-1}])
+                (filter-events #{:dice-rolled :set-seed}))
+           [[:dice-rolled [{:die-id :die-0
+                            :from 0
+                            :to 3
+                            :roll-id 1}
+                           {:die-id :die-1
+                            :from 4
+                            :to 2
+                            :roll-id 1}]]
+            [:set-seed 2]]))))

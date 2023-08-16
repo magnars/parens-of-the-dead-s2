@@ -55,17 +55,20 @@
    (< -1 n rerolls)
    (not (contains? (set spent-rerolls) n))))
 
+(defn roll-dice [game rng dice]
+  [:dice-rolled (for [die dice]
+                  {:die-id (:id die)
+                   :from (:current-face die)
+                   :to (mod (.nextInt rng) (count (:faces die)))
+                   :roll-id (:seed game)})])
+
 (defn reroll [game n]
   (when (reroll-allowed? game n)
     (let [rng (java.util.Random. (:seed game))]
       [[:spent-reroll {:rerolls (:rerolls game)
                        :spent-rerolls (conj (:spent-rerolls game #{}) n)}]
-       [:dice-rolled (for [die (->> (vals (:dice game))
-                                    (remove :locked?))]
-                       {:die-id (:id die)
-                        :from (:current-face die)
-                        :to (mod (.nextInt rng) (count (:faces die)))
-                        :roll-id (:seed game)})]
+       (roll-dice game rng (->> (vals (:dice game))
+                                (remove :locked?)))
        [:set-seed (inc (:seed game))]])))
 
 (defn set-die-locked? [game die-id locked?]
@@ -90,8 +93,11 @@
        (mapcat #(set-die-locked? game (:id %) false))))
 
 (defn finish-turn [game {:keys [target]}]
-  (concat (deliver-package-of-punches game target)
-          (unlock-dice game)))
+  (let [rng (java.util.Random. (:seed game))]
+    (concat (deliver-package-of-punches game target)
+            (unlock-dice game)
+            [(roll-dice game rng (vals (:dice game)))
+             [:set-seed (inc (:seed game))]])))
 
 (defn perform-command [game command]
   (match command
