@@ -48,6 +48,11 @@
         {:used? true}
         {:on-click [:reroll i]}))]])
 
+(defn replenish-rerolls [opts]
+  [[:assoc-in [:player :rerolls]
+    (for [i (range (:rerolls opts))]
+      {:on-click [:reroll i]})]])
+
 (defn roll-dice [rolls]
   (concat
    (mapcat
@@ -94,4 +99,5 @@
     [:set-player-health health] (set-player-health health)
     [:set-player-rerolls n] (prepare-rerolls {:rerolls n})
     [:set-seed seed] nil
-    [:spent-reroll opts] (prepare-rerolls opts)))
+    [:spent-reroll opts] (prepare-rerolls opts)
+    [:replenished-rerolls opts] (replenish-rerolls opts)))

@@ -44,11 +44,13 @@
     [:dice-rolled rolls] (reduce roll-die game rolls)
     [:killed-zombie zombie-id] (update game :zombies dissoc zombie-id)
     [:punched-zombie opts] (punch-zombie game opts)
+    [:replenished-rerolls opts] (assoc game :spent-rerolls #{})
     [:set-die-locked? opts] (assoc-in game [:dice (:die-id opts) :locked?] (:locked? opts))
     [:set-player-health health] game
     [:set-player-rerolls n] (assoc game :rerolls n)
     [:set-seed seed] (assoc game :seed seed)
-    [:spent-reroll opt] (assoc game :spent-rerolls (:spent-rerolls opt))))
+    [:spent-reroll opt] (assoc game :spent-rerolls (:spent-rerolls opt))
+    ))
 
 (defn reroll-allowed? [{:keys [rerolls spent-rerolls]} n]
   (and
@@ -96,6 +98,7 @@
   (let [rng (java.util.Random. (:seed game))]
     (concat (deliver-package-of-punches game target)
             (unlock-dice game)
+            [[:replenished-rerolls (select-keys game [:rerolls])]]
             [(roll-dice game rng (vals (:dice game)))
              [:set-seed (inc (:seed game))]])))
 
