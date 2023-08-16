@@ -17,7 +17,8 @@
 (defn prepare-zombie [zombie]
   {:kind (:kind zombie)
    :on-click [:finish-turn {:target (:id zombie)}]
-   :hearts (prepare-hearts (:health zombie))})
+   :hearts (prepare-hearts (:health zombie))
+   :intention-classes nil})
 
 (defn add-zombie [zombie]
   [[:assoc-in [:zombies (:id zombie)] (prepare-zombie zombie)]])

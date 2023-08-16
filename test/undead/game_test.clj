@@ -36,6 +36,10 @@
 
 ;; update-game
 
+(deftest update-game--start-round
+  (is (= (sut/update-game {} [:started-round {:number 1}])
+         {:round-number 1})))
+
 (deftest update-game--set-player-rerolls
   (is (= (sut/update-game {} [:set-player-rerolls 2])
          {:rerolls 2})))
@@ -270,4 +274,13 @@
                                  :current-face 4}}}
                  [:finish-turn {:target :zombie-1}])
                 (filter-events #{:replenished-rerolls}))
-           [[:replenished-rerolls {:rerolls 3}]]))))
+           [[:replenished-rerolls {:rerolls 3}]])))
+
+  (testing "Starts new round"
+    (is (= (->> (sut/perform-command
+                 {:seed 1
+                  :rerolls 3
+                  :round-number 1}
+                 [:finish-turn {:target :zombie-1}])
+                (filter-events #{:started-round}))
+           [[:started-round {:number 2}]]))))
