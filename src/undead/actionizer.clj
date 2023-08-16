@@ -101,4 +101,5 @@
     [:set-player-rerolls n] (prepare-rerolls {:rerolls n})
     [:set-seed seed] nil
     [:spent-reroll opts] (prepare-rerolls opts)
+    [:started-round opts] [[:assoc-in [:round-number] (:round-number opts)]]
     [:replenished-rerolls opts] (replenish-rerolls opts)))

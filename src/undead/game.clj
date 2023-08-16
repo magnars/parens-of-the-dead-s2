@@ -32,7 +32,7 @@
                      :faces [:punch :heal :shields :shovel :punches :skull]
                      :current-face (mod (.nextInt rng) 6)})]
      [:set-player-rerolls 2]
-     [:started-round {:number 1}]
+     [:started-round {:round-number 1}]
      [:set-seed (inc seed)]]))
 
 (defn add-dice [game dice]
@@ -57,7 +57,7 @@
     [:set-player-rerolls n] (assoc game :rerolls n)
     [:set-seed seed] (assoc game :seed seed)
     [:spent-reroll opt] (assoc game :spent-rerolls (:spent-rerolls opt))
-    [:started-round opt] (assoc game :round-number (:number opt))
+    [:started-round opt] (assoc game :round-number (:round-number opt))
     ))
 
 (defn reroll-allowed? [{:keys [rerolls spent-rerolls]} n]
@@ -108,7 +108,7 @@
             (unlock-dice game)
             [[:replenished-rerolls (select-keys game [:rerolls])]]
             [(roll-dice game rng (vals (:dice game)))
-             [:started-round {:number (inc (:round-number game))}]
+             [:started-round {:round-number (inc (:round-number game))}]
              [:set-seed (inc (:seed game))]])))
 
 (defn perform-command [game command]

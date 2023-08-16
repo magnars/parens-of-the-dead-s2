@@ -37,7 +37,7 @@
 ;; update-game
 
 (deftest update-game--start-round
-  (is (= (sut/update-game {} [:started-round {:number 1}])
+  (is (= (sut/update-game {} [:started-round {:round-number 1}])
          {:round-number 1})))
 
 (deftest update-game--set-player-rerolls
@@ -106,57 +106,57 @@
 
 ;; perform-command
 
+(defn perform-command [game command]
+  (sut/perform-command
+   (merge {:seed 0 :round-number 1} game)
+   command))
+
 (deftest perform-command--initialize
-  (is (= (->> (sut/perform-command {} [:initialize 666])
+  (is (= (->> (perform-command {} [:initialize 666])
               (filter-events #{:set-seed}))
          [[:set-seed 667]])))
 
 (deftest perform-command--reroll
   (testing "Use reroll"
-    (is (= (->> (sut/perform-command {:seed 0, :rerolls 2} [:reroll 1])
+    (is (= (->> (perform-command {:rerolls 2} [:reroll 1])
                 (filter-events #{:spent-reroll}))
            [[:spent-reroll {:rerolls 2
                             :spent-rerolls #{1}}]])))
 
   (testing "Use another reroll"
-    (is (= (->> (sut/perform-command {:seed 0
-                                      :rerolls 3
-                                      :spent-rerolls #{1}} [:reroll 0])
+    (is (= (->> (perform-command {:rerolls 3
+                                  :spent-rerolls #{1}} [:reroll 0])
                 (filter-events #{:spent-reroll}))
            [[:spent-reroll {:rerolls 3
                             :spent-rerolls #{0 1}}]])))
 
   (testing "Can't spend used reroll"
-    (is (nil? (sut/perform-command {:seed 0
-                                    :rerolls 3
-                                    :spent-rerolls #{1}} [:reroll 1]))))
+    (is (nil? (perform-command {:rerolls 3
+                                :spent-rerolls #{1}} [:reroll 1]))))
 
   (testing "Can't spend non-existent reroll"
-    (is (nil? (sut/perform-command {:seed 0
-                                    :rerolls 3
-                                    :spent-rerolls #{1}} [:reroll 3])))
+    (is (nil? (perform-command {:rerolls 3
+                                :spent-rerolls #{1}} [:reroll 3])))
 
-    (is (nil? (sut/perform-command {:seed 0
-                                    :rerolls 3
-                                    :spent-rerolls #{1}} [:reroll -1]))))
+    (is (nil? (perform-command {:rerolls 3
+                                :spent-rerolls #{1}} [:reroll -1]))))
 
   (testing "Produces a new seed"
-    (is (= (->> (sut/perform-command {:seed 0
-                                      :rerolls 3} [:reroll 0])
+    (is (= (->> (perform-command {:seed 1
+                                  :rerolls 3} [:reroll 0])
                 (filter-events #{:set-seed}))
-           [[:set-seed 1]])))
+           [[:set-seed 2]])))
 
   (testing "Rolling the dice"
-    (is (= (->> (sut/perform-command {:seed 0
-                                      :rerolls 3
-                                      :dice {:die-0 {:id :die-0
-                                                     :faces faces
-                                                     :current-face 1}
-                                             :die-1 {:id :die-1
-                                                     :locked? true
-                                                     :faces faces
-                                                     :current-face 2}}}
-                                     [:reroll 0])
+    (is (= (->> (perform-command {:rerolls 3
+                                  :dice {:die-0 {:id :die-0
+                                                 :faces faces
+                                                 :current-face 1}
+                                         :die-1 {:id :die-1
+                                                 :locked? true
+                                                 :faces faces
+                                                 :current-face 2}}}
+                                 [:reroll 0])
                 (filter-events #{:dice-rolled}))
            [[:dice-rolled [{:die-id :die-0
                             :from 1
@@ -166,22 +166,21 @@
   )
 
 (deftest perform-command--set-die-locked?
-  (is (= (->> (sut/perform-command {:dice {:die-0 {:id :die-0}}}
-                                   [:set-die-locked? :die-0 true])
+  (is (= (->> (perform-command {:dice {:die-0 {:id :die-0}}}
+                               [:set-die-locked? :die-0 true])
               (filter-events #{:set-die-locked?}))
          [[:set-die-locked? {:die-id :die-0
                              :locked? true}]]))
 
-  (is (= (->> (sut/perform-command {:dice {:die-0 {:id :die-0}}}
-                                   [:set-die-locked? :die-6 true])
+  (is (= (->> (perform-command {:dice {:die-0 {:id :die-0}}}
+                               [:set-die-locked? :die-6 true])
               (filter-events #{:set-die-locked?}))
          [])))
 
 (deftest perform-command--finish-turn
   (testing "Punch a zombie!"
-    (is (= (->> (sut/perform-command
-                 {:seed 1
-                  :dice {:die-0 {:id :die-0
+    (is (= (->> (perform-command
+                 {:dice {:die-0 {:id :die-0
                                  :faces faces
                                  :current-face 0}}
                   :zombies {:zombie-0 {:id :zombie-0
@@ -195,9 +194,8 @@
                               :health {:max 8 :current 6}}]])))
 
   (testing "Cannot punch non-existent zombie"
-    (is (= (->> (sut/perform-command
-                 {:seed 1
-                  :dice {:die-0 {:id :die-0
+    (is (= (->> (perform-command
+                 {:dice {:die-0 {:id :die-0
                                  :faces faces
                                  :current-face 0}}}
                  [:finish-turn {:target :zombie-0}])
@@ -205,9 +203,8 @@
            [])))
 
   (testing "Cannot remove life that is not there"
-    (is (= (->> (sut/perform-command
-                 {:seed 1
-                  :dice {:die-0 {:id :die-0
+    (is (= (->> (perform-command
+                 {:dice {:die-0 {:id :die-0
                                  :faces faces
                                  :current-face 0}
                          :die-1 {:id :die-1
@@ -225,9 +222,8 @@
             [:killed-zombie :zombie-1]])))
 
   (testing "Unlocks locked dice in the game"
-    (is (= (->> (sut/perform-command
-                 {:seed 1
-                  :dice {:die-0 {:id :die-0
+    (is (= (->> (perform-command
+                 {:dice {:die-0 {:id :die-0
                                  :faces faces
                                  :locked? true
                                  :current-face 0}
@@ -240,7 +236,7 @@
                                :locked? false}]])))
 
   (testing "Rerolls the dice"
-    (is (= (->> (sut/perform-command
+    (is (= (->> (perform-command
                  {:seed 1
                   :dice {:die-0 {:id :die-0
                                  :faces faces
@@ -262,9 +258,8 @@
             [:set-seed 2]])))
 
   (testing "Gimme back my rerolls!"
-    (is (= (->> (sut/perform-command
-                 {:seed 1
-                  :rerolls 3
+    (is (= (->> (perform-command
+                 {:rerolls 3
                   :dice {:die-0 {:id :die-0
                                  :faces faces
                                  :locked? true
@@ -277,10 +272,8 @@
            [[:replenished-rerolls {:rerolls 3}]])))
 
   (testing "Starts new round"
-    (is (= (->> (sut/perform-command
-                 {:seed 1
-                  :rerolls 3
-                  :round-number 1}
+    (is (= (->> (perform-command
+                 {:rerolls 3 :round-number 2}
                  [:finish-turn {:target :zombie-1}])
                 (filter-events #{:started-round}))
-           [[:started-round {:number 2}]]))))
+           [[:started-round {:round-number 3}]]))))

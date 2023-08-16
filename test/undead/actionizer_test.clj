@@ -129,3 +129,8 @@
          [[:assoc-in [:zombies :zombie-2 :class] "falling"]
           [:wait 700]
           [:dissoc-in [:zombies] :zombie-2]])))
+
+(deftest actionize--started-round
+  (is (= (sut/event->actions
+          [:started-round {:round-number 3}])
+         [[:assoc-in [:round-number] 3]])))
