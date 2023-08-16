@@ -32,6 +32,15 @@
     [:div.lock {:on-click lock-command}
      [:div.padlock]]]])
 
+(d/defcomponent Player [{:keys [hearts class]}]
+  [:div
+   [:div.player-health {:class class}
+    [:div.player-punches
+     (for [i (range 1 6)]
+       [:div {:class (str "player-punch-" i)}])]
+    (for [heart hearts]
+      [:div.heart {:class heart}])]])
+
 (d/defcomponent Page [{:keys [zombies error player dice round-number]}]
   (if error
     [:div.page [:pre error]]
@@ -42,9 +51,7 @@
          [:div.building {:class (str "building-" i)}])]
       [:div.zombies
        (map Zombie (vals zombies))]
-      [:div.player-health
-       (for [heart (:hearts player)]
-         [:div {:class heart}])]
+      (Player player)
       [:div.dice-row
        (interpose
         [:div.dice-spacing]

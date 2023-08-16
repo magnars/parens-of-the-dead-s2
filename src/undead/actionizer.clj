@@ -76,13 +76,22 @@
      [:assoc-in [:dice id :die-class] "using"])
    (mapcat (fn [class i]
              [[:assoc-in [:zombies zombie-id :class] class]
-              [:assoc-in [:zombies :zombie-1 :hearts]
+              [:assoc-in [:zombies zombie-id :hearts]
                (prepare-hearts (update health :current - 1 i))]
               [:wait 200]])
            (take damage punch-classes)
            (range))
    (for [id die-ids]
      [:assoc-in [:dice id :die-class] "used"])))
+
+(defn punch-player [{:keys [damage health]}]
+  (mapcat (fn [class i]
+            [[:assoc-in [:player :class] class]
+             [:assoc-in [:player :hearts]
+              (render-hearts (update health :current - 1 i))]
+             [:wait 200]])
+          (take damage punch-classes)
+          (range)))
 
 (defn kill-zombie [target]
   [[:assoc-in [:zombies target :class] "falling"]
@@ -100,6 +109,7 @@
     [:dice-rolled rolls] (roll-dice rolls)
     [:killed-zombie target] (kill-zombie target)
     [:punched-zombie opts] (punch-zombie opts)
+    [:punched-player opts] (punch-player opts)
     [:set-die-locked? opts] (set-die-locked? opts)
     [:set-player-health health] (set-player-health health)
     [:set-player-rerolls n] (prepare-rerolls {:rerolls n})

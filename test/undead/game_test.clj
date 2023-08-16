@@ -40,6 +40,10 @@
   (is (= (sut/update-game {} [:started-round {:round-number 1}])
          {:round-number 1})))
 
+(deftest update-game--set-player-health
+  (is (= (sut/update-game {} [:set-player-health {:max 8 :current 7}])
+         {:player {:health {:max 8 :current 7}}})))
+
 (deftest update-game--set-player-rerolls
   (is (= (sut/update-game {} [:set-player-rerolls 2])
          {:rerolls 2})))
@@ -113,6 +117,11 @@
           :zombies)
       {:zombie-1 {:id :zombie-1 :intensions [:punches :punch]}
        :zombie-2 {:id :zombie-2 :intensions [:punch :punch]}}))
+
+(deftest update-game--punched-player
+  (is (= (sut/update-game {:player {:health {:max 8 :current 7}}}
+                          [:punched-player {:damage 1}])
+         {:player {:health {:max 8 :current 6}}})))
 
 ;; perform-command
 

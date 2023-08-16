@@ -49,16 +49,20 @@
           game
           id->intentions))
 
+(defn punch-player [game opts]
+  (update-in game [:player :health :current] - (:damage opts)))
+
 (defn update-game [game event]
   (match event
     [:added-dice dice] (add-dice game dice)
     [:added-zombie zombie] (assoc-in game [:zombies (:id zombie)] zombie)
     [:dice-rolled rolls] (reduce roll-die game rolls)
     [:killed-zombie zombie-id] (update game :zombies dissoc zombie-id)
+    [:punched-player opts] (punch-player game opts)
     [:punched-zombie opts] (punch-zombie game opts)
     [:replenished-rerolls opts] (assoc game :spent-rerolls #{})
     [:set-die-locked? opts] (assoc-in game [:dice (:die-id opts) :locked?] (:locked? opts))
-    [:set-player-health health] game ;; TODO
+    [:set-player-health health] (assoc-in game [:player :health] health)
     [:set-player-rerolls n] (assoc game :rerolls n)
     [:set-seed seed] (assoc game :seed seed)
     [:spent-reroll opt] (assoc game :spent-rerolls (:spent-rerolls opt))

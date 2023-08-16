@@ -140,3 +140,13 @@
           [:zombies-planned-their-moves
            {:zombie-0 [:punch :punch]}])
          [[:assoc-in [:zombies :zombie-0 :intention-classes] [:punch :punch]]])))
+
+(deftest actionize--punched-player
+  (is (= (sut/event->actions
+          [:punched-player {:damage 2, :health {:max 4, :current 3}}])
+         [[:assoc-in [:player :class] "punched-3"]
+          [:assoc-in [:player :hearts] [:heart :heart :lost :lost]]
+          [:wait 200]
+          [:assoc-in [:player :class] "punched-1"]
+          [:assoc-in [:player :hearts] [:heart :lost :lost :lost]]
+          [:wait 200]])))
