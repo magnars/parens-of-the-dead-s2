@@ -104,6 +104,16 @@
                    [:killed-zombie :zombie-1])
                   :zombies))))
 
+(deftest update-game--zombie-planning-meeting
+  (is (-> (sut/update-game
+           {:zombies {:zombie-1 {:id :zombie-1}
+                      :zombie-2 {:id :zombie-2}}}
+           [:zombies-planned-their-moves {:zombie-1 [:punches :punch]
+                                          :zombie-2 [:punch :punch]}])
+          :zombies)
+      {:zombie-1 {:id :zombie-1 :intensions [:punches :punch]}
+       :zombie-2 {:id :zombie-2 :intensions [:punch :punch]}}))
+
 ;; perform-command
 
 (defn perform-command [game command]

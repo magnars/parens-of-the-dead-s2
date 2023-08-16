@@ -43,6 +43,12 @@
 (defn punch-zombie [game {:keys [zombie-id damage]}]
   (update-in game [:zombies zombie-id :health :current] - damage))
 
+(defn update-zombie-intentions [game id->intentions]
+  (reduce (fn [game [id intentions]]
+            (assoc-in game [:zombies id :intentions] intentions))
+          game
+          id->intentions))
+
 (defn update-game [game event]
   (match event
     [:added-dice dice] (add-dice game dice)
@@ -57,6 +63,7 @@
     [:set-seed seed] (assoc game :seed seed)
     [:spent-reroll opt] (assoc game :spent-rerolls (:spent-rerolls opt))
     [:started-round opt] (assoc game :round-number (:round-number opt))
+    [:zombies-planned-their-moves opt] (update-zombie-intentions game opt)
     ))
 
 (defn reroll-allowed? [{:keys [rerolls spent-rerolls]} n]
