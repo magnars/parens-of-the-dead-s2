@@ -32,7 +32,7 @@
     [:div.lock {:on-click lock-command}
      [:div.padlock]]]])
 
-(d/defcomponent Page [{:keys [zombies error player dice]}]
+(d/defcomponent Page [{:keys [zombies error player dice round-number]}]
   (if error
     [:div.page [:pre error]]
     [:div.page
@@ -52,4 +52,7 @@
        [:div.rerolls
         (for [{:keys [on-click used?]} (:rerolls player)]
           [:div.reroll {:on-click on-click
-                        :class (when used? "used")}])]]]]))
+                        :class (when used? "used")}])]]]
+     (when round-number
+       [:div.status-bar
+        [:p "Round " round-number]])]))
