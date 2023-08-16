@@ -150,3 +150,7 @@
           [:assoc-in [:player :class] "punched-1"]
           [:assoc-in [:player :hearts] [:heart :lost :lost :lost]]
           [:wait 200]])))
+
+(deftest actionize--killed-player
+  (is (= (sut/event->actions [:killed-player])
+         [[:assoc-in [:game-over?] true]])))

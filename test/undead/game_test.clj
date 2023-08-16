@@ -306,6 +306,23 @@
                               :health {:max 7 :current 1}}]
             [:killed-player]])))
 
+  (testing "Second zombie don't get to punch a dead player"
+    (is (= (->> (perform-command
+                 {:player {:health {:max 7 :current 2}}
+                  :zombies {:zombie-1 {:id :zombie-1
+                                       :kind :biker
+                                       :intentions [:punches]
+                                       :health {:max 8 :current 2}}
+                            :zombie-2 {:id :zombie-2
+                                       :kind :biker
+                                       :intentions [:punches]
+                                       :health {:max 8 :current 2}}}}
+                 [:finish-turn {:target :zombie-1}])
+                (filter-events #{:punched-player :killed-player}))
+           [[:punched-player {:damage 2
+                              :health {:max 7 :current 2}}]
+            [:killed-player]])))
+
   (testing "Unlocks locked dice in the game"
     (is (= (->> (perform-command
                  {:dice {:die-0 {:id :die-0

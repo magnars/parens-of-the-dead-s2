@@ -108,6 +108,7 @@
     [:added-zombie zombie] (add-zombie zombie)
     [:dice-rolled rolls] (roll-dice rolls)
     [:killed-zombie target] (kill-zombie target)
+    [:killed-player] [[:assoc-in [:game-over?] true]]
     [:punched-zombie opts] (punch-zombie opts)
     [:punched-player opts] (punch-player opts)
     [:set-die-locked? opts] (set-die-locked? opts)

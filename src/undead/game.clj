@@ -145,7 +145,8 @@
 (defn perform-zombie-turns [game]
   (:events
    (reduce (fn [{:keys [events game]} zombie]
-             (let [zombie-events (get-zombie-turn-events game zombie)]
+             (let [zombie-events (when-not (:game-over? game)
+                                   (get-zombie-turn-events game zombie))]
                {:game (reduce update-game game zombie-events)
                 :events (into events zombie-events)}))
            {:game game

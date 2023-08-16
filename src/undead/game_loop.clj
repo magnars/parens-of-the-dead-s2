@@ -20,5 +20,5 @@
         (let [command (:message (<! ws-channel))
               [updated-game actions] (perform-command game command)]
           (put! ws-channel actions)
-          (when updated-game
+          (when (and updated-game (not (:game-over? updated-game)))
             (recur updated-game)))))))

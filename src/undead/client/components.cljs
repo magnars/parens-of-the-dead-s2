@@ -41,9 +41,15 @@
     (for [heart hearts]
       [:div.heart {:class heart}])]])
 
-(d/defcomponent Page [{:keys [zombies error player dice round-number]}]
-  (if error
+(d/defcomponent Page [{:keys [zombies error player dice round-number game-over?]}]
+  (cond
+    error
     [:div.page [:pre error]]
+
+    game-over?
+    [:div.game-over [:div.eaten-by-zombies]]
+
+    :else
     [:div.page
      [:div.surface
       [:div.skyline
