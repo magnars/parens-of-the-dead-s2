@@ -32,7 +32,6 @@
                      :faces [:punch :heal :shields :shovel :punches :skull]
                      :current-face (mod (.nextInt rng) 6)})]
      [:set-player-rerolls 2]
-     [:started-round {:round-number 1}]
      [:set-seed (inc seed)]]))
 
 (defn add-dice [game dice]
@@ -102,18 +101,37 @@
        (filter :locked?)
        (mapcat #(set-die-locked? game (:id %) false))))
 
+(defn zombie-planning-meeting [game round-number]
+  [[:zombies-planned-their-moves
+    (->> (for [zombie (vals (:zombies game))]
+           [(:id zombie) (when-let [actions (get-in zombie [:behaviour :actions])]
+                           (get-in actions [(mod (dec round-number) (count actions))]))])
+         (into {}))]])
+
+(defn start-round [game]
+  (let [round-number (inc (:round-number game 0))]
+    (concat
+     (zombie-planning-meeting game round-number)
+     [[:started-round {:round-number round-number}]])))
+
 (defn finish-turn [game {:keys [target]}]
   (let [rng (java.util.Random. (:seed game))]
     (concat (deliver-package-of-punches game target)
             (unlock-dice game)
             [[:replenished-rerolls (select-keys game [:rerolls])]]
-            [(roll-dice game rng (vals (:dice game)))
-             [:started-round {:round-number (inc (:round-number game))}]
-             [:set-seed (inc (:seed game))]])))
+            [(roll-dice game rng (vals (:dice game)))]
+            [[:set-seed (inc (:seed game))]]
+            (start-round game))))
+
+(defn initialize-game [seed]
+  (let [events (get-initial-events seed)
+        game (reduce update-game {} events)]
+    (concat events
+            (start-round game))))
 
 (defn perform-command [game command]
   (match command
     [:finish-turn opts] (finish-turn game opts)
-    [:initialize seed] (get-initial-events seed)
+    [:initialize seed] (initialize-game seed)
     [:reroll n] (reroll game n)
     [:set-die-locked? die-id locked?] (set-die-locked? game die-id locked?)))
