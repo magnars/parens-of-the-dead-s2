@@ -45,6 +45,10 @@
                                              :spent-rerolls #{0}}])
          {:spent-rerolls #{0}})))
 
+(deftest update-game--replenished-reroll
+  (is (= (sut/update-game {} [:replenished-rerolls {:rerolls 3}])
+         {:spent-rerolls #{}})))
+
 (deftest update-game--added-dice
   (testing "Adds dice where there are none"
     (is (= (:dice (sut/update-game {} [:added-dice [{:id :die-0}
@@ -251,4 +255,19 @@
                             :from 4
                             :to 2
                             :roll-id 1}]]
-            [:set-seed 2]]))))
+            [:set-seed 2]])))
+
+  (testing "Gimme back my rerolls!"
+    (is (= (->> (sut/perform-command
+                 {:seed 1
+                  :rerolls 3
+                  :dice {:die-0 {:id :die-0
+                                 :faces faces
+                                 :locked? true
+                                 :current-face 0}
+                         :die-1 {:id :die-1
+                                 :faces faces
+                                 :current-face 4}}}
+                 [:finish-turn {:target :zombie-1}])
+                (filter-events #{:replenished-rerolls}))
+           [[:replenished-rerolls {:rerolls 3}]]))))

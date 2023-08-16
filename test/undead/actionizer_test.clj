@@ -68,6 +68,12 @@
          [[:assoc-in [:player :rerolls] [{:on-click [:reroll 0]}
                                          {:used? true}]]])))
 
+(deftest actionize--replenish-rerolls
+  (is (= (sut/event->actions
+          [:replenished-rerolls {:rerolls 2}])
+         [[:assoc-in [:player :rerolls] [{:on-click [:reroll 0]}
+                                         {:on-click [:reroll 1]}]]])))
+
 (deftest actionize--roll-dice
   (is (= (sut/event->actions
           [:dice-rolled [{:die-id :die-0
