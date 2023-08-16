@@ -12,15 +12,15 @@
 (defn current-face [die]
   (nth (:faces die) (:current-face die)))
 
-(defn punch-value [die]
-  (case (current-face die)
+(defn punch-value [action]
+  (case action
     :punch 1
     :punches 2
     0))
 
 (defn get-die-effects [dice]
   {:punches (let [punch-dice (filter (comp #{:punch :punches} current-face) dice)]
-              {:value (apply + (map punch-value punch-dice))
+              {:value (apply + (map (comp punch-value current-face) punch-dice))
                :die-ids (set (map :id punch-dice))})})
 
 (defn get-initial-events [seed]
@@ -58,7 +58,7 @@
     [:punched-zombie opts] (punch-zombie game opts)
     [:replenished-rerolls opts] (assoc game :spent-rerolls #{})
     [:set-die-locked? opts] (assoc-in game [:dice (:die-id opts) :locked?] (:locked? opts))
-    [:set-player-health health] game
+    [:set-player-health health] game ;; TODO
     [:set-player-rerolls n] (assoc game :rerolls n)
     [:set-seed seed] (assoc game :seed seed)
     [:spent-reroll opt] (assoc game :spent-rerolls (:spent-rerolls opt))
@@ -121,13 +121,29 @@
      (zombie-planning-meeting game round-number)
      [[:started-round {:round-number round-number}]])))
 
+(defn get-intention-effects [intentions]
+  {:punches (let [punches (filter #{:punch :punches} intentions)]
+              {:value (apply + (map punch-value punches))})})
+
+(defn perform-zombie-turns [game]
+  (mapcat
+   (fn [zombie]
+     (for [[kind opts] (get-intention-effects (:intentions zombie))]
+       (case kind
+         :punches [:punched-player {:damage (:value opts)
+                                    :health (get-in game [:player :health])}])))
+   (vals (:zombies game))))
+
 (defn finish-turn [game {:keys [target]}]
   (let [rng (java.util.Random. (:seed game))]
     (concat (deliver-package-of-punches game target)
+            (perform-zombie-turns game)
+
             (unlock-dice game)
             [[:replenished-rerolls (select-keys game [:rerolls])]]
             [(roll-dice game rng (vals (:dice game)))]
             [[:set-seed (inc (:seed game))]]
+
             (start-round game))))
 
 (defn initialize-game [seed]
