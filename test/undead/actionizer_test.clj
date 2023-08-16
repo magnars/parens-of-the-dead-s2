@@ -11,7 +11,8 @@
            [[:assoc-in [:zombies :zombie-1]
              {:kind :biker
               :hearts [[:heart :heart :heart :heart]]
-              :on-click [:finish-turn {:target :zombie-1}]}]])))
+              :on-click [:finish-turn {:target :zombie-1}]
+              :intention-classes nil}]])))
 
   (testing "lost hearts"
     (is (= (-> (sut/event->actions

@@ -1,7 +1,7 @@
 (ns undead.client.components
   (:require [dumdom.core :as d]))
 
-(d/defcomponent Zombie [{:keys [kind on-click hearts class]}]
+(d/defcomponent Zombie [{:keys [kind on-click hearts class intention-classes]}]
   [:div.zombie-position
    [:div.zombie {:class [kind class]
                  :on-click on-click}
@@ -11,7 +11,14 @@
                [:div.heart {:class heart}])])]
     [:div.zombie-punches
      (for [i (range 1 6)]
-       [:div {:class (str "zombie-punch-" i)}])]]])
+       [:div {:class (str "zombie-punch-" i)}])]]
+
+   (when (seq intention-classes)
+     [:div.thought-bubble {:mounted-style {:opacity 0.9 :transition "opacity 2000ms"}
+                           :leaving-style {:opacity 0 :transition "opacity 500ms"}}
+      [:div {:class (str "intentions-" (count intention-classes))}
+       (for [class intention-classes]
+         [:div.intention {:class class}])]])])
 
 (d/defcomponent DieWithLock
   [{:keys [die-class faces cube-class key clamp-class lock-command]}]
