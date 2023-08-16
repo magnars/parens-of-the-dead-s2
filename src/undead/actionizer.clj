@@ -89,6 +89,10 @@
    [:wait 700]
    [:dissoc-in [:zombies] target]])
 
+(defn plan-zombie-moves [zombie-plans]
+  (for [[id intentions] zombie-plans]
+    [:assoc-in [:zombies id :intention-classes] intentions]))
+
 (defn event->actions [event]
   (match event
     [:added-dice dice] (add-dice dice)
@@ -102,4 +106,5 @@
     [:set-seed seed] nil
     [:spent-reroll opts] (prepare-rerolls opts)
     [:started-round opts] [[:assoc-in [:round-number] (:round-number opts)]]
-    [:replenished-rerolls opts] (replenish-rerolls opts)))
+    [:replenished-rerolls opts] (replenish-rerolls opts)
+    [:zombies-planned-their-moves opts] (plan-zombie-moves opts)))

@@ -112,9 +112,16 @@
    command))
 
 (deftest perform-command--initialize
-  (is (= (->> (perform-command {} [:initialize 666])
-              (filter-events #{:set-seed}))
-         [[:set-seed 667]])))
+  (testing "Sets the seed"
+    (is (= (->> (perform-command {} [:initialize 666])
+                (filter-events #{:set-seed}))
+           [[:set-seed 667]])))
+
+  (testing "Plans the zombie rounds"
+    (is (= (->> (perform-command {} [:initialize 666])
+                (filter-events #{:zombies-planned-their-moves}))
+           [[:zombies-planned-their-moves
+             {:zombie-1 [:punch :punch]}]]))))
 
 (deftest perform-command--reroll
   (testing "Use reroll"
@@ -276,4 +283,18 @@
                  {:rerolls 3 :round-number 2}
                  [:finish-turn {:target :zombie-1}])
                 (filter-events #{:started-round}))
-           [[:started-round {:round-number 3}]]))))
+           [[:started-round {:round-number 3}]])))
+
+  (testing "Replans the zombies"
+    (is (= (->> (perform-command
+                 {:round-number 3
+                  :zombies {:zombie-1
+                            {:id :zombie-1
+                             :kind :biker
+                             :behaviour {:strategy :round-number
+                                         :actions [[:punch :punch]
+                                                   [:punches :punch]]}
+                             :health {:max 8 :current 8}}}}
+                 [:finish-turn {:target :zombie-1}])
+                (filter-events #{:zombies-planned-their-moves}))
+           [[:zombies-planned-their-moves {:zombie-1 [:punches :punch]}]]))))

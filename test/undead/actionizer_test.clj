@@ -134,3 +134,9 @@
   (is (= (sut/event->actions
           [:started-round {:round-number 3}])
          [[:assoc-in [:round-number] 3]])))
+
+(deftest actionize--zombies-planned-their-moves
+  (is (= (sut/event->actions
+          [:zombies-planned-their-moves
+           {:zombie-0 [:punch :punch]}])
+         [[:assoc-in [:zombies :zombie-0 :intention-classes] [:punch :punch]]])))
