@@ -259,6 +259,53 @@
            [[:punched-player {:damage 1
                               :health {:max 7 :current 5}}]])))
 
+  (testing "Dead zombies don't love punching"
+    (is (= (->> (perform-command
+                 {:player {:health {:max 7 :current 5}}
+                  :dice {:die-0 {:id :die-0
+                                 :faces faces
+                                 :locked? true
+                                 :current-face 4}}
+                  :zombies {:zombie-1 {:id :zombie-1
+                                       :kind :biker
+                                       :intentions [:punch]
+                                       :health {:max 8 :current 2}}}}
+                 [:finish-turn {:target :zombie-1}])
+                (filter-events #{:punched-player}))
+           [])))
+
+  (testing "Zombies really love killing the player"
+    (is (= (->> (perform-command
+                 {:player {:health {:max 7 :current 1}}
+                  :zombies {:zombie-1 {:id :zombie-1
+                                       :kind :biker
+                                       :intentions [:punches]
+                                       :health {:max 8 :current 2}}}}
+                 [:finish-turn {:target :zombie-1}])
+                (filter-events #{:punched-player :killed-player}))
+           [[:punched-player {:damage 1
+                              :health {:max 7 :current 1}}]
+            [:killed-player]])))
+
+  (testing "Zombies particulary love killing the player tag-team style"
+    (is (= (->> (perform-command
+                 {:player {:health {:max 7 :current 3}}
+                  :zombies {:zombie-1 {:id :zombie-1
+                                       :kind :biker
+                                       :intentions [:punches]
+                                       :health {:max 8 :current 2}}
+                            :zombie-2 {:id :zombie-2
+                                       :kind :biker
+                                       :intentions [:punches]
+                                       :health {:max 8 :current 2}}}}
+                 [:finish-turn {:target :zombie-1}])
+                (filter-events #{:punched-player :killed-player}))
+           [[:punched-player {:damage 2
+                              :health {:max 7 :current 3}}]
+            [:punched-player {:damage 1
+                              :health {:max 7 :current 1}}]
+            [:killed-player]])))
+
   (testing "Unlocks locked dice in the game"
     (is (= (->> (perform-command
                  {:dice {:die-0 {:id :die-0

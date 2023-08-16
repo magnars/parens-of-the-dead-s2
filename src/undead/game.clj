@@ -57,6 +57,7 @@
     [:added-dice dice] (add-dice game dice)
     [:added-zombie zombie] (assoc-in game [:zombies (:id zombie)] zombie)
     [:dice-rolled rolls] (reduce roll-die game rolls)
+    [:killed-player] {:game-over? true}
     [:killed-zombie zombie-id] (update game :zombies dissoc zombie-id)
     [:punched-player opts] (punch-player game opts)
     [:punched-zombie opts] (punch-zombie game opts)
@@ -126,28 +127,45 @@
      [[:started-round {:round-number round-number}]])))
 
 (defn get-intention-effects [intentions]
-  {:punches (let [punches (filter #{:punch :punches} intentions)]
-              {:value (apply + (map punch-value punches))})})
+  (when-let [punches (seq (filter #{:punch :punches} intentions))]
+    {:punches {:value (apply + (map punch-value punches))}}))
+
+(defn get-zombie-turn-events [game zombie]
+  (mapcat
+   (fn [[kind opts]]
+     (case kind
+       :punches
+       (cond-> [[:punched-player {:damage (min (:value opts)
+                                               (get-in game [:player :health :current]))
+                                  :health (get-in game [:player :health])}]]
+         (<= (get-in game [:player :health :current]) (:value opts))
+         (conj [:killed-player]))))
+   (get-intention-effects (:intentions zombie))))
 
 (defn perform-zombie-turns [game]
-  (mapcat
-   (fn [zombie]
-     (for [[kind opts] (get-intention-effects (:intentions zombie))]
-       (case kind
-         :punches [:punched-player {:damage (:value opts)
-                                    :health (get-in game [:player :health])}])))
-   (vals (:zombies game))))
+  (:events
+   (reduce (fn [{:keys [events game]} zombie]
+             (let [zombie-events (get-zombie-turn-events game zombie)]
+               {:game (reduce update-game game zombie-events)
+                :events (into events zombie-events)}))
+           {:game game
+            :events []}
+           (vals (:zombies game)))))
+
+(defn complete-round [game]
+  (let [rng (java.util.Random. (:seed game))]
+    (concat
+     (unlock-dice game)
+     [[:replenished-rerolls (select-keys game [:rerolls])]]
+     [(roll-dice game rng (vals (:dice game)))]
+     [[:set-seed (inc (:seed game))]])))
 
 (defn finish-turn [game {:keys [target]}]
-  (let [rng (java.util.Random. (:seed game))]
-    (concat (deliver-package-of-punches game target)
+  (let [dice-events (deliver-package-of-punches game target)
+        game (reduce update-game game dice-events)]
+    (concat dice-events
             (perform-zombie-turns game)
-
-            (unlock-dice game)
-            [[:replenished-rerolls (select-keys game [:rerolls])]]
-            [(roll-dice game rng (vals (:dice game)))]
-            [[:set-seed (inc (:seed game))]]
-
+            (complete-round game)
             (start-round game))))
 
 (defn initialize-game [seed]
