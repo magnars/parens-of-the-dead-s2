@@ -1063,7 +1063,16 @@ body {background: #ddf; margin: 0;}
     margin: 6px 3px 3px;
     display: inline-block;
     position: relative;
+    animation-iteration-count: 1;
+    animation-duration: 500ms;
+    animation-fill-mode: both;
+    animation-name: slide-up, fade-in;
+    animation-timing-function: ease;
 }
+
+.reroll:nth-child(1) { animation-delay: 200ms;}
+.reroll:nth-child(2) { animation-delay: 100ms;}
+.reroll:nth-child(3) { animation-delay: 0ms;}
 
 .reroll:not(.used) {
     cursor: pointer;
