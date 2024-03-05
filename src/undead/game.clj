@@ -7,7 +7,24 @@
     :behaviour {:strategy :round-number
                 :actions [[:punch :punch]
                           [:punches :punch]]}
-    :health {:max 8 :current 8}}])
+    :health {:max 7 :current 7}}
+   {:id :zombie-2
+    :kind :mailman
+    :behaviour {:strategy :round-number
+                :actions [[:punch :heal]
+                          [:punches]]}
+    :health {:max 9 :current 9}}
+   {:id :zombie-3
+    :kind :pencil-pusher
+    :behaviour {:strategy :round-number
+                :actions [[:punches :punches]
+                          [:heal :heal :heal]]}
+    :health {:max 12 :current 9}}
+   {:id :zombie-4
+    :kind :chef
+    :behaviour {:strategy :round-number
+                :actions [[:punches]]}
+    :health {:max 18 :current 18}}])
 
 (defn current-face [die]
   (nth (:faces die) (:current-face die)))
@@ -120,9 +137,16 @@
                            (get-in actions [(mod (dec round-number) (count actions))]))])
          (into {}))]])
 
+(defn recruit-zombie [round-number]
+  (when-let [zombie (first (drop (dec round-number) zombies))]
+    [[:added-zombie zombie]]))
+
 (defn start-round [game]
-  (let [round-number (inc (:round-number game 0))]
+  (let [round-number (inc (:round-number game 0))
+        recruit-events (recruit-zombie round-number)
+        game (reduce update-game game recruit-events)]
     (concat
+     recruit-events
      (zombie-planning-meeting game round-number)
      [[:started-round {:round-number round-number}]])))
 

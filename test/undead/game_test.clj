@@ -380,6 +380,23 @@
                 (filter-events #{:started-round}))
            [[:started-round {:round-number 3}]])))
 
+  (testing "Fresh rotting meat appears"
+    (is (= (->> (perform-command
+                 {:zombies {:zombie-1 {:id :zombie-1
+                                       :behaviour {:strategy :round-number
+                                                   :actions [[:punch :punch]
+                                                             [:punches :punch]]}
+                                       :health {:current 9}}}}
+                 [:finish-turn {:target :zombie-1}])
+                (filter-events #{:added-zombie :zombies-planned-their-moves}))
+           [[:added-zombie {:id :zombie-2
+                            :kind :mailman
+                            :behaviour {:strategy :round-number
+                                        :actions [[:punch :heal] [:punches]]}
+                            :health {:max 9, :current 9}}]
+            [:zombies-planned-their-moves {:zombie-1 [:punches :punch]
+                                           :zombie-2 [:punches]}]])))
+
   (testing "Replans the zombies"
     (is (= (->> (perform-command
                  {:round-number 3
