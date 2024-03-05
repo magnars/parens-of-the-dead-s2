@@ -3,17 +3,18 @@
         org.clojure/clojurescript {:mvn/version "1.10.520"}
         org.clojure/core.async {:mvn/version "1.5.648"}
         org.clojure/core.match {:mvn/version "1.0.0"}
-        http-kit/http-kit {:mvn/version "2.5.3"}
+        cjohansen/dumdom {:mvn/version "2022.09.28"}
         compojure/compojure {:mvn/version "1.6.2"}
+        http-kit/http-kit {:mvn/version "2.5.3"}
         integrant/integrant {:mvn/version "0.8.0"}
         jarohen/chord {:mvn/version "0.8.1"}
-        cjohansen/dumdom {:mvn/version "2022.09.28"}}
+        org.slf4j/slf4j-nop {:mvn/version "2.0.9"}}
  :aliases
  {:dev {:extra-paths ["test" "dev" "dev-resources"]
-        :extra-deps {integrant/repl {:mvn/version "0.3.2"}
-                     cider/piggieback {:mvn/version "0.5.3"}
-                     com.bhauman/figwheel-main {:mvn/version "0.2.14"}
+        :extra-deps {cider/piggieback {:mvn/version "0.5.3"}
                      cjohansen/gadget-inspector {:mvn/version "0.2020.09.10"}
-                     lambdaisland/kaocha {:mvn/version "1.63.998"}
-                     kaocha-noyoda/kaocha-noyoda {:mvn/version "2019-06-03"}}
+                     com.bhauman/figwheel-main {:mvn/version "0.2.14"}
+                     integrant/repl {:mvn/version "0.3.2"}
+                     kaocha-noyoda/kaocha-noyoda {:mvn/version "2019-06-03"}
+                     lambdaisland/kaocha {:mvn/version "1.63.998"}}
         :jvm-opts ["-XX:-OmitStackTraceInFastThrow"]}}}

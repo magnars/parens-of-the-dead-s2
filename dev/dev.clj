@@ -1,6 +1,6 @@
 (ns dev
-  (:require [figwheel.main]
-            [figwheel.main.api]
+  (:require [figwheel.main.api]
+            [figwheel.main]
             [integrant.repl :as repl]
             [undead.system :as system]))
 
@@ -17,10 +17,10 @@
     (figwheel.main.api/cljs-repl "dev")
     (figwheel.main.api/start "dev")))
 
-(comment
+(comment ;; s-:
+
+
   (start)
   (stop)
-
-  integrant.repl.state/system
-
+  (cljs)
   )

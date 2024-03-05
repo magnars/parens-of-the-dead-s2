@@ -1,3 +1,5 @@
+/.clj-kondo/
+/.lsp/
 /.cpcache/
 /.nrepl-port
 /dev-resources/public/
